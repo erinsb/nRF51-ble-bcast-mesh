@@ -388,7 +388,8 @@ static bool payload_has_conflict(mesh_adv_data_t* p_old_adv, mesh_adv_data_t* p_
         return true;
     }
 
-    return (memcmp(p_old_adv->data, p_new_adv->data, p_old_adv->adv_data_length - MESH_PACKET_ADV_OVERHEAD) != 0);
+    //return (memcmp(p_old_adv->data, p_new_adv->data, p_old_adv->adv_data_length - MESH_PACKET_ADV_OVERHEAD) != 0);
+		return p_old_adv->data = p_new_adv->data;
 }
 
 static void cache_task_handle_enable(rbc_mesh_value_handle_t handle, mesh_packet_t* p_packet)
@@ -653,7 +654,8 @@ vh_data_status_t vh_rx_register(mesh_adv_data_t* p_adv_data, uint64_t timestamp)
     
 }
 
-vh_data_status_t vh_local_update(rbc_mesh_value_handle_t handle, uint8_t* data, uint8_t length)
+//vh_data_status_t vh_local_update(rbc_mesh_value_handle_t handle, uint8_t* data, uint8_t length)
+vh_data_status_t vh_local_update(rbc_mesh_value_handle_t handle, uint8_t data, uint8_t length)
 {
     if (!m_is_initialized)
         return VH_DATA_STATUS_UNKNOWN;
@@ -704,7 +706,8 @@ uint32_t vh_order_update(uint64_t time_now)
     return event_handler_push(&tx_event);
 }
 
-uint32_t vh_value_get(rbc_mesh_value_handle_t handle, uint8_t* data, uint16_t* length)
+//uint32_t vh_value_get(rbc_mesh_value_handle_t handle, uint8_t* data, uint16_t* length)
+uint32_t vh_value_get(rbc_mesh_value_handle_t handle, uint8_t data, uint16_t* length)
 {
     if (!m_is_initialized)
         return NRF_ERROR_INVALID_STATE;
@@ -734,7 +737,8 @@ uint32_t vh_value_get(rbc_mesh_value_handle_t handle, uint8_t* data, uint16_t* l
     }
 
     /* make copy */
-    memcpy(data, p_adv_data->data, *length);
+    //memcpy(data, p_adv_data->data, *length);
+		data = p_adv_data->data;
 
     event_handler_critical_section_end();
     return NRF_SUCCESS;

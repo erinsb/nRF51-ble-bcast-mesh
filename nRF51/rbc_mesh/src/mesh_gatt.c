@@ -100,7 +100,8 @@ typedef __packed_armcc struct
 {
     rbc_mesh_value_handle_t handle;
     uint8_t data_len;
-    uint8_t data[RBC_MESH_VALUE_MAX_LEN];
+    //uint8_t data[RBC_MESH_VALUE_MAX_LEN];
+		uint8_t data;
 } __packed_gcc gatt_evt_data_update_t;
 
 typedef __packed_armcc struct 
@@ -373,7 +374,8 @@ uint32_t mesh_gatt_init(uint32_t access_address, uint8_t channel, uint32_t inter
     return NRF_SUCCESS;
 }
 
-uint32_t mesh_gatt_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint8_t length)
+//uint32_t mesh_gatt_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint8_t length)
+uint32_t mesh_gatt_value_set(rbc_mesh_value_handle_t handle, uint8_t data, uint8_t length)
 {
     if (length > RBC_MESH_VALUE_MAX_LEN)
     {
@@ -385,7 +387,8 @@ uint32_t mesh_gatt_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint
         gatt_evt.opcode = MESH_GATT_EVT_OPCODE_DATA;
         gatt_evt.param.data_update.handle = handle;
         gatt_evt.param.data_update.data_len = length;
-        memcpy(gatt_evt.param.data_update.data, data, length);
+        //memcpy(gatt_evt.param.data_update.data, data, length);
+				gatt_evt.param.data_update.data = data;
 
         return mesh_gatt_evt_push(&gatt_evt);
     }
@@ -571,7 +574,8 @@ uint32_t mesh_gatt_init(uint32_t access_address, uint8_t channel, uint32_t inter
     return NRF_ERROR_SOFTDEVICE_NOT_ENABLED;
 }
 
-uint32_t mesh_gatt_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint8_t length)
+//uint32_t mesh_gatt_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint8_t length)
+uint32_t mesh_gatt_value_set(rbc_mesh_value_handle_t handle, uint8_t data, uint8_t length)
 {
     return NRF_ERROR_SOFTDEVICE_NOT_ENABLED;
 }

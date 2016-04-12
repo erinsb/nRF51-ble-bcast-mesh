@@ -118,10 +118,11 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
         case RBC_MESH_EVENT_TYPE_CONFLICTING_VAL:
         case RBC_MESH_EVENT_TYPE_NEW_VAL:
         case RBC_MESH_EVENT_TYPE_UPDATE_VAL:
-            if (evt->value_handle > 1)
+            if (evt->value_handle > 3)
                 break;
 
-            led_config(evt->value_handle, evt->data[0]);
+            //led_config(evt->value_handle, evt->data[0]);
+						led_config(evt->value_handle, evt->data);
             break;
         case RBC_MESH_EVENT_TYPE_TX:
             break;
@@ -175,6 +176,26 @@ int main(void)
 
     /* only want to enable serial interface, and let external host setup the framework */
     mesh_aci_init();
+	
+	  rbc_mesh_init_params_t init_params;
+
+    init_params.access_addr = MESH_ACCESS_ADDR;
+    init_params.interval_min_ms = MESH_INTERVAL_MIN_MS;
+    init_params.channel = MESH_CHANNEL;
+    init_params.lfclksrc = MESH_CLOCK_SOURCE;
+
+    uint32_t error_code = rbc_mesh_init(init_params);
+    APP_ERROR_CHECK(error_code);
+
+    /* request values for both LEDs on the mesh */
+    for (uint32_t i = 0; i < 2; ++i)
+    {
+        error_code = rbc_mesh_value_enable(i);
+        APP_ERROR_CHECK(error_code);
+    }
+
+    /* init BLE gateway softdevice application: */
+    nrf_adv_conn_init();
 
 #else
 
@@ -210,7 +231,11 @@ int main(void)
         {
             rbc_mesh_event_handler(&evt);
             rbc_mesh_packet_release(evt.data);
+						//LEDS_ON(BSP_LED_2_MASK);
         }
+				//printf("Event is: %d", rbc_mesh_event_get(&evt));
+				//LEDS_OFF(BSP_LED_3_MASK);
+				//LEDS_ON(BSP_LED_3_MASK);
 
         sd_app_evt_wait();
     }

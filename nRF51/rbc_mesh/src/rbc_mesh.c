@@ -37,6 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mesh_packet.h"
 #include "mesh_gatt.h"
 #include "fifo.h"
+#include "boards.h"
 
 #include "nrf_error.h"
 #include "nrf_sdm.h"
@@ -210,7 +211,8 @@ uint32_t rbc_mesh_tx_event_set(rbc_mesh_value_handle_t handle, bool do_tx_event)
 
 /****** Getters and setters ******/
 
-uint32_t rbc_mesh_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint16_t len)
+//uint32_t rbc_mesh_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint16_t len)
+uint32_t rbc_mesh_value_set(rbc_mesh_value_handle_t handle, uint8_t data, uint16_t len)
 {
     if (g_mesh_state == MESH_STATE_UNINITIALIZED)
     {
@@ -229,7 +231,8 @@ uint32_t rbc_mesh_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint1
     return NRF_SUCCESS;
 }
 
-uint32_t rbc_mesh_value_get(rbc_mesh_value_handle_t handle, uint8_t* data, uint16_t* len)
+//uint32_t rbc_mesh_value_get(rbc_mesh_value_handle_t handle, uint8_t* data, uint16_t* len)
+uint32_t rbc_mesh_value_get(rbc_mesh_value_handle_t handle, uint8_t data, uint16_t* len)
 {
     if (handle > RBC_MESH_APP_MAX_HANDLE)
     {
@@ -312,12 +315,14 @@ uint32_t rbc_mesh_event_push(rbc_mesh_event_t* p_event)
 {
     if (g_mesh_state == MESH_STATE_UNINITIALIZED)
     {
+				//LEDS_ON(BSP_LED_3_MASK);
         return NRF_ERROR_INVALID_STATE;
     }
     uint32_t error_code = fifo_push(&g_rbc_event_fifo, p_event);
 
     if (error_code == NRF_SUCCESS && p_event->data != NULL)
     {
+				//LEDS_ON(BSP_LED_3_MASK);
         mesh_packet_ref_count_inc((mesh_packet_t*) p_event->data); /* will be aligned by packet manager */
     }
     return error_code;
@@ -327,10 +332,12 @@ uint32_t rbc_mesh_event_get(rbc_mesh_event_t* p_evt)
 {
     if (g_mesh_state == MESH_STATE_UNINITIALIZED)
     {
+				//LEDS_ON(BSP_LED_2_MASK);
         return NRF_ERROR_INVALID_STATE;
     }
     if (fifo_pop(&g_rbc_event_fifo, p_evt) != NRF_SUCCESS)
     {
+				//LEDS_ON(BSP_LED_0_MASK);
         return NRF_ERROR_NOT_FOUND;
     }
     
@@ -356,7 +363,8 @@ uint32_t rbc_mesh_event_peek(rbc_mesh_event_t* p_evt)
     return NRF_SUCCESS;
 }
 
-uint32_t rbc_mesh_packet_release(uint8_t* p_data)
+//uint32_t rbc_mesh_packet_release(uint8_t* p_data)
+uint32_t rbc_mesh_packet_release(uint8_t p_data)
 {
     if (g_mesh_state == MESH_STATE_UNINITIALIZED)
     {

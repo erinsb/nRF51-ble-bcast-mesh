@@ -47,10 +47,12 @@ void led_config(uint8_t led, uint8_t conf)
 #else /* All other boards are the other way around */
   if (!conf)
   {
+		//LEDS_ON(BSP_LED_3_MASK);
     NRF_GPIO->OUTSET = (1 << (led + LED_START));
   }
   else
   {
+		//LEDS_ON(BSP_LED_3_MASK);
     NRF_GPIO->OUTCLR = (1 << (led + LED_START));
   }
 #endif
