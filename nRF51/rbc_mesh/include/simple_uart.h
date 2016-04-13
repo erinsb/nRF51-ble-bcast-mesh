@@ -69,4 +69,4 @@ void simple_uart_config(uint8_t rts_pin_number, uint8_t txd_pin_number, uint8_t 
  **/
 
 /*lint --flb "Leave library region" */
-#endif
+#endif //SIMPLE_UART_H
