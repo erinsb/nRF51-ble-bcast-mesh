@@ -82,8 +82,7 @@ typedef __packed_armcc struct
     uint16_t                mesh_uuid;
     rbc_mesh_value_handle_t handle;
     uint16_t                version;
-    //uint8_t                 data[RBC_MESH_VALUE_MAX_LEN];
-		uint8_t									data;
+    uint8_t                 data[RBC_MESH_VALUE_MAX_LEN];
 } __packed_gcc mesh_adv_data_t;
 
 typedef __packed_armcc struct
@@ -124,8 +123,7 @@ uint32_t mesh_packet_set_local_addr(mesh_packet_t* p_packet);
 uint32_t mesh_packet_build(mesh_packet_t* p_packet,
         rbc_mesh_value_handle_t handle,
         uint16_t version,
-        //uint8_t* data,
-				uint8_t data,
+        uint8_t* data,
         uint8_t length);
 
 uint32_t mesh_packet_adv_data_sanitize(mesh_packet_t* p_packet);

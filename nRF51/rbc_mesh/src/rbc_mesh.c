@@ -211,8 +211,7 @@ uint32_t rbc_mesh_tx_event_set(rbc_mesh_value_handle_t handle, bool do_tx_event)
 
 /****** Getters and setters ******/
 
-//uint32_t rbc_mesh_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint16_t len)
-uint32_t rbc_mesh_value_set(rbc_mesh_value_handle_t handle, uint8_t data, uint16_t len)
+uint32_t rbc_mesh_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint16_t len)
 {
     if (g_mesh_state == MESH_STATE_UNINITIALIZED)
     {
@@ -238,7 +237,7 @@ uint32_t rbc_mesh_value_get(rbc_mesh_value_handle_t handle, uint8_t data, uint16
     {
         return NRF_ERROR_INVALID_ADDR;
     }
-    return vh_value_get(handle, data, len);
+    return vh_value_get(handle, &data, len);
 }
 
 uint32_t rbc_mesh_access_address_get(uint32_t* access_address)
@@ -363,8 +362,8 @@ uint32_t rbc_mesh_event_peek(rbc_mesh_event_t* p_evt)
     return NRF_SUCCESS;
 }
 
-//uint32_t rbc_mesh_packet_release(uint8_t* p_data)
-uint32_t rbc_mesh_packet_release(uint8_t p_data)
+uint32_t rbc_mesh_packet_release(uint8_t* p_data)
+//uint32_t rbc_mesh_packet_release(uint8_t p_data)
 {
     if (g_mesh_state == MESH_STATE_UNINITIALIZED)
     {

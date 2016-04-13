@@ -64,8 +64,7 @@ typedef struct
 
 uint32_t mesh_gatt_init(uint32_t access_address, uint8_t channel, uint32_t interval_min_ms);
 
-//uint32_t mesh_gatt_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint8_t length);
-uint32_t mesh_gatt_value_set(rbc_mesh_value_handle_t handle, uint8_t data, uint8_t length);
+uint32_t mesh_gatt_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint8_t length);
 
 void mesh_gatt_sd_ble_event_handle(ble_evt_t* p_ble_evt);
 

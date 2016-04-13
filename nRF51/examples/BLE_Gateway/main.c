@@ -120,9 +120,12 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
         case RBC_MESH_EVENT_TYPE_UPDATE_VAL:
             if (evt->value_handle > 3)
                 break;
+						if (evt->data[0] == 1) {
+							LEDS_ON(BSP_LED_3_MASK);
+						}
+						
 
-            //led_config(evt->value_handle, evt->data[0]);
-						led_config(evt->value_handle, evt->data);
+            led_config(evt->value_handle, evt->data[0]);
             break;
         case RBC_MESH_EVENT_TYPE_TX:
             break;
@@ -279,6 +282,7 @@ int main(void)
 
         if (rbc_mesh_event_get(&evt) == NRF_SUCCESS)
         {
+						//printf("HERE\n");
             rbc_mesh_event_handler(&evt);
             rbc_mesh_packet_release(evt.data);
         }

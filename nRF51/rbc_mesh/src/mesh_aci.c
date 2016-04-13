@@ -202,8 +202,8 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
             /* notify application */
             if (error_code == NRF_SUCCESS)
             {
-                //memcpy(p_packet->payload, serial_cmd->params.value_set.value, data_len);
-								p_packet->payload, serial_cmd->params.value_set.value;
+                memcpy(p_packet->payload, serial_cmd->params.value_set.value, data_len);
+								//p_packet->payload = serial_cmd->params.value_set.value;
                 memset(&app_evt, 0, sizeof(app_evt));
                 app_evt.event_type = RBC_MESH_EVENT_TYPE_UPDATE_VAL;
                 app_evt.data = serial_cmd->params.value_set.value;
@@ -598,8 +598,7 @@ void mesh_aci_rbc_event_handler(rbc_mesh_event_t* evt)
 
     /* all event parameter types are the same, just use event_update for all */
     serial_evt.params.event_update.handle = evt->value_handle;
-    //memcpy(serial_evt.params.event_update.data, evt->data, evt->data_len);
-		serial_evt.params.event_update.data = evt->data;
+    memcpy(serial_evt.params.event_update.data, evt->data, evt->data_len);
 
     serial_handler_event_send(&serial_evt);
 }

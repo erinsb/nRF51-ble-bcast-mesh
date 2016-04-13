@@ -157,8 +157,7 @@ uint32_t mesh_packet_set_local_addr(mesh_packet_t* p_packet)
 uint32_t mesh_packet_build(mesh_packet_t* p_packet,
         rbc_mesh_value_handle_t handle,
         uint16_t version,
-        //uint8_t* data,
-				uint8_t data,
+        uint8_t* data,
         uint8_t length)
 {
     if (p_packet == NULL)
@@ -187,8 +186,8 @@ uint32_t mesh_packet_build(mesh_packet_t* p_packet,
     p_mesh_adv_data->version = version;
     if (length > 0 && data != NULL && length <= RBC_MESH_VALUE_MAX_LEN)
     {
-        //memcpy(p_mesh_adv_data->data, data, length);
-				p_mesh_adv_data->data = data;
+        memcpy(p_mesh_adv_data->data, data, length);
+				
     }
 
     return NRF_SUCCESS;

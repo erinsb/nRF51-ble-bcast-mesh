@@ -115,8 +115,7 @@ typedef struct
 {
     rbc_mesh_event_type_t event_type;       /**< See @ref rbc_mesh_event_type_t */
     rbc_mesh_value_handle_t value_handle;   /**< Handle of the value the event is generated for */
-    //uint8_t* data;                          /**< Current data array contained at the event handle location */
-		uint8_t data;
+    uint8_t* data;                          /**< Current data array contained at the event handle location */
     uint8_t data_len;                       /**< Length of data array */
     int8_t rssi;                            /**< RSSI of received data, in range of -100dBm to ~-40dBm */
     ble_gap_addr_t ble_adv_addr;            /**< Advertisement address of the device we got the update from. */
@@ -215,8 +214,7 @@ uint32_t rbc_mesh_stop(void);
 *    in @ref rbc_mesh_init.
 * @return NRF_ERROR_INVALID_LENGTH if len exceeds RBC_VALUE_MAX_LEN.
 */
-//uint32_t rbc_mesh_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint16_t len);
-uint32_t rbc_mesh_value_set(rbc_mesh_value_handle_t handle, uint8_t data, uint16_t len);
+uint32_t rbc_mesh_value_set(rbc_mesh_value_handle_t handle, uint8_t* data, uint16_t len);
 
 /**
 * @brief Start broadcasting the handle-value pair. If the handle has not been
@@ -452,8 +450,8 @@ uint32_t rbc_mesh_event_peek(rbc_mesh_event_t* p_evt);
 *   successfully freed.
 * @return NRF_ERROR_INVALID_STATE the framework has not been initialized.
 */
-//uint32_t rbc_mesh_packet_release(uint8_t* p_data);
-uint32_t rbc_mesh_packet_release(uint8_t p_data);
+uint32_t rbc_mesh_packet_release(uint8_t* p_data);
+//uint32_t rbc_mesh_packet_release(uint8_t p_data);
 
 #endif /* _RBC_MESH_H__ */
 

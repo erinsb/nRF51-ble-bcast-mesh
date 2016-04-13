@@ -52,8 +52,8 @@ uint32_t vh_min_interval_set(uint32_t min_interval_us);
 
 vh_data_status_t vh_rx_register(mesh_adv_data_t* p_adv_data, uint64_t timestamp);
 
-//vh_data_status_t vh_local_update(rbc_mesh_value_handle_t handle, uint8_t* data, uint8_t length);
-vh_data_status_t vh_local_update(rbc_mesh_value_handle_t handle, uint8_t data, uint8_t length);
+vh_data_status_t vh_local_update(rbc_mesh_value_handle_t handle, uint8_t* data, uint8_t length);
+
 
 uint32_t vh_on_timeslot_begin(void);
 
@@ -61,7 +61,7 @@ uint32_t vh_order_update(uint64_t time_now);
 
 /** @brief: Make copy of payload for given handle. */
 //uint32_t vh_value_get(rbc_mesh_value_handle_t handle, uint8_t* data, uint16_t* length);
-uint32_t vh_value_get(rbc_mesh_value_handle_t handle, uint8_t data, uint16_t* length);
+uint32_t vh_value_get(rbc_mesh_value_handle_t handle, uint8_t* data, uint16_t* length);
 
 uint32_t vh_tx_event_set(rbc_mesh_value_handle_t handle, bool do_tx_event);
 
