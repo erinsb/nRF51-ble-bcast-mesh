@@ -193,6 +193,7 @@ void gpio_init(void)
 /** @brief main function */
 int main(void)
 {
+		retarget_init();
     /* init leds and pins */
     gpio_init();
     NRF_GPIO->OUTSET = (1 << 4);
