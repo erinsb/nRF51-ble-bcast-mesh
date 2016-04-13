@@ -44,6 +44,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stdio.h>
 
+#include "simple_uart.h"
+
+struct __FILE { int handle; /* Add whatever you need here */ };
+FILE __stdout;
+FILE __stdin;
+
+void retarget_init(void)
+{
+    simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
+}
+
+int fputc(int ch, FILE * p_file) 
+{
+    simple_uart_put((uint8_t)ch);
+    return 0;
+}
+
 /* Debug macros for debugging with logic analyzer */
 #define SET_PIN(x) NRF_GPIO->OUTSET = (1 << (x))
 #define CLEAR_PIN(x) NRF_GPIO->OUTCLR = (1 << (x))
@@ -88,6 +105,15 @@ void sd_assert_handler(uint32_t pc, uint16_t line_num, const uint8_t* p_file_nam
 */
 void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name)
 {
+		//FILE *fp;
+		//fp = fopen("error.log", "w+");
+	//fprintf(fp, "error_code: %u\n", error_code);
+	//fprintf(fp, "line_number: %u\n", line_num);
+	//fprintf(fp, "file_name: %s\n", (char *)p_file_name);
+	
+	printf("error_code: %u\n", error_code);
+	printf("line_number: %u\n", line_num);
+	printf("file_name: %s\n", (char *)p_file_name);
     error_loop();
 }
 
