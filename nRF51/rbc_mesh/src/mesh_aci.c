@@ -178,6 +178,7 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
 
     case SERIAL_CMD_OPCODE_VALUE_SET:
     {
+				
         serial_evt.opcode = SERIAL_EVT_OPCODE_CMD_RSP;
         serial_evt.params.cmd_rsp.command_opcode = serial_cmd->opcode;
         serial_evt.length = 3;
@@ -213,12 +214,13 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
 								//memcpy(app_evt.data, serial_cmd->params.value_set.value, data_len);
 								app_evt.data = serial_cmd->params.value_set.value;
 								printf("app_evt.data[0] : data_len %u %u\n", app_evt.data[0], data_len);
+								printf("app_evt.data %p \n", app_evt.data);
                 app_evt.data_len = data_len;
                 app_evt.value_handle = serial_cmd->params.value_set.handle;
 
                 error_code = rbc_mesh_event_push(&app_evt);
                 mesh_packet_ref_count_dec(p_packet);
-                printf("rbc_mesh_event_push %x\n", error_code);
+							printf("rbc_mesh_event_push (1): app_evt onto g_rbc_event_fifo %x\n", error_code);
                 serial_evt.params.cmd_rsp.status = error_code_translate(error_code);
 								//LEDS_ON(BSP_LED_1_MASK);
 							

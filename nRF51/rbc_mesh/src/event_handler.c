@@ -37,6 +37,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "nrf_soc.h"
 #include "toolchain.h"
 #include <string.h>
+#include <stdio.h>
 
 #define EVENT_HANDLER_IRQ       (QDEC_IRQn)
 

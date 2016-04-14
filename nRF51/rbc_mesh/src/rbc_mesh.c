@@ -319,6 +319,8 @@ uint32_t rbc_mesh_event_push(rbc_mesh_event_t* p_event)
         return NRF_ERROR_INVALID_STATE;
     }
     uint32_t error_code = fifo_push(&g_rbc_event_fifo, p_event);
+		//printf("p_event pushed onto g_rbc_event_fifo\n");
+		
 
     if (error_code == NRF_SUCCESS && p_event->data != NULL)
     {
@@ -333,14 +335,14 @@ uint32_t rbc_mesh_event_get(rbc_mesh_event_t* p_evt)
 {
     if (g_mesh_state == MESH_STATE_UNINITIALIZED)
     {
-				//LEDS_ON(BSP_LED_2_MASK);
         return NRF_ERROR_INVALID_STATE;
     }
+		printf("SHOULD BE NULL: %p \n", p_evt);
     if (fifo_pop(&g_rbc_event_fifo, p_evt) != NRF_SUCCESS)
     {
-				//LEDS_ON(BSP_LED_0_MASK);
         return NRF_ERROR_NOT_FOUND;
     }
+		//printf("fifo_pop p_evt from g_rbc_event_fifo \n");
     
     return NRF_SUCCESS;    
 }

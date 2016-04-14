@@ -154,6 +154,7 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 	printf("evt->data[2] %x \n", evt->data[2]);	
 	printf("evt->data[3] %x \n", evt->data[3]);
 	printf("evt->data[4] %x \n", evt->data[4]);
+	printf("eve->data addr %p \n", &evt->data);
 	
     TICK_PIN(28);
     switch (evt->event_type)
@@ -274,13 +275,11 @@ int main(void)
     {
         if (rbc_mesh_event_get(&evt) == NRF_SUCCESS)
         {
+						printf("rbc_mesh_event_get(1): evt popped from g_rbc_event_fifo \n");
             rbc_mesh_event_handler(&evt);
             rbc_mesh_packet_release(evt.data);
-						//LEDS_ON(BSP_LED_2_MASK);
+					//printf("rbc_mesh_event_get(1): evt popped from g_rbc_event_fifo \n");
         }
-				//printf("Event is: %d", rbc_mesh_event_get(&evt));
-				//LEDS_OFF(BSP_LED_3_MASK);
-				//LEDS_ON(BSP_LED_3_MASK);
 
         sd_app_evt_wait();
     }
@@ -324,7 +323,7 @@ int main(void)
 
         if (rbc_mesh_event_get(&evt) == NRF_SUCCESS)
         {
-						//printf("HERE\n");
+					printf("rbc_mesh_event_get (2): evt popped from g_rbc_event_fifo \n");
             rbc_mesh_event_handler(&evt);
             rbc_mesh_packet_release(evt.data);
         }
