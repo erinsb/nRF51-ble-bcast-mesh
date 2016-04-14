@@ -337,7 +337,6 @@ uint32_t rbc_mesh_event_get(rbc_mesh_event_t* p_evt)
     {
         return NRF_ERROR_INVALID_STATE;
     }
-		printf("SHOULD BE NULL: %p \n", p_evt);
     if (fifo_pop(&g_rbc_event_fifo, p_evt) != NRF_SUCCESS)
     {
         return NRF_ERROR_NOT_FOUND;

@@ -146,6 +146,10 @@ void sd_ble_evt_handler(ble_evt_t* p_ble_evt)
 */
 static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 {
+	/*if(evt->event_type == RBC_MESH_EVENT_TYPE_UPDATE_VAL) {
+		evt->data -= 32;
+		printf("eve->data addr %p \n", &evt->data);
+	}*/
 	
 	printf("evt->event_type %x \n", evt->event_type);
 	printf("evt->value_handle %u \n", evt->value_handle);
@@ -154,7 +158,11 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 	printf("evt->data[2] %x \n", evt->data[2]);	
 	printf("evt->data[3] %x \n", evt->data[3]);
 	printf("evt->data[4] %x \n", evt->data[4]);
-	printf("eve->data addr %p \n", &evt->data);
+	printf("evt->data[5] %x \n", evt->data[5]);
+	printf("evt->data[6] %x \n", evt->data[6]);
+	printf("eve->data addr %p \n", evt->data);
+	uint8_t* addr = (uint8_t*)0x20005178;
+	printf("addr: %d \n", *addr);
 	
     TICK_PIN(28);
     switch (evt->event_type)
@@ -278,6 +286,7 @@ int main(void)
 						printf("rbc_mesh_event_get(1): evt popped from g_rbc_event_fifo \n");
             rbc_mesh_event_handler(&evt);
             rbc_mesh_packet_release(evt.data);
+						memset(&evt, 0, sizeof(evt));
 					//printf("rbc_mesh_event_get(1): evt popped from g_rbc_event_fifo \n");
         }
 

@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ************************************************************************************/
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "mesh_aci.h"
 #include "rbc_mesh_common.h"
 
@@ -209,18 +210,27 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
                 memcpy(p_packet->payload, serial_cmd->params.value_set.value, data_len);
 								printf("Value copied into p_packet->payload: data_len =  %u\n", data_len);
                 memset(&app_evt, 0, sizeof(app_evt));
+								printf("Size of app_evt: %d \n", sizeof(app_evt));
+							  printf("Size of rbc_mesh_event_t, uint8_t*, ble_gap_addr_t: %d %d %d \n ", sizeof(rbc_mesh_event_type_t), sizeof(uint8_t*), sizeof(ble_gap_addr_t)); 
                 app_evt.event_type = RBC_MESH_EVENT_TYPE_UPDATE_VAL;
 							
 								//memcpy(app_evt.data, serial_cmd->params.value_set.value, data_len);
 								app_evt.data = serial_cmd->params.value_set.value;
-								printf("app_evt.data[0] : data_len %u %u\n", app_evt.data[0], data_len);
+								printf("app_evt.data[0]: %u\n", app_evt.data[0]);
+								printf("app_evt.data[1]: %u\n", app_evt.data[1]);
+								printf("app_evt.data[2]: %u\n", app_evt.data[2]);
+								printf("app_evt.data[3]: %u\n", app_evt.data[3]);
+								printf("app_evt.data[4]: %u\n", app_evt.data[4]);
 								printf("app_evt.data %p \n", app_evt.data);
+								uint8_t* addr = (uint8_t*)0x20005178;
+								printf("app_evt.data %d \n", *addr);
+								printf("app_evt.data length %d \n", data_len);
                 app_evt.data_len = data_len;
                 app_evt.value_handle = serial_cmd->params.value_set.handle;
 
                 error_code = rbc_mesh_event_push(&app_evt);
                 mesh_packet_ref_count_dec(p_packet);
-							printf("rbc_mesh_event_push (1): app_evt onto g_rbc_event_fifo %x\n", error_code);
+								printf("rbc_mesh_event_push (1): app_evt onto g_rbc_event_fifo %x\n", error_code);
                 serial_evt.params.cmd_rsp.status = error_code_translate(error_code);
 								//LEDS_ON(BSP_LED_1_MASK);
 							
@@ -567,11 +577,18 @@ void mesh_aci_init(void)
 
 void mesh_aci_command_check(void)
 {
-    serial_cmd_t serial_cmd;
+		static serial_cmd_t* serial_cmd = NULL;
+		static bool cmd_init = 0;
+		if (!cmd_init) {
+				serial_cmd = realloc(serial_cmd, sizeof(serial_cmd_t));
+				if (serial_cmd) {
+					cmd_init = 1;
+				}
+		}
     /* poll queue */
-    while (serial_handler_command_get(&serial_cmd))
+    while (serial_handler_command_get(serial_cmd))
     {
-        serial_command_handler(&serial_cmd);
+        serial_command_handler(serial_cmd);
     }
 }
 
