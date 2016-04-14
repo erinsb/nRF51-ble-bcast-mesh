@@ -27,6 +27,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ************************************************************************************/
+#include <stdlib.h>
 
 #include "transport_control.h"
 
@@ -107,7 +108,9 @@ static void order_search(void)
 static void prepare_event(rbc_mesh_event_t* evt, mesh_adv_data_t* p_mesh_adv_data, uint8_t rssi, ble_gap_addr_t* p_addr)
 {
     evt->value_handle = p_mesh_adv_data->handle;
-    evt->data = &p_mesh_adv_data->data[0];
+    //evt->data = &p_mesh_adv_data->data[0];
+	  evt->data = (uint8_t *) malloc(p_mesh_adv_data->adv_data_length);
+	  memcpy(evt->data, p_mesh_adv_data->data, p_mesh_adv_data->adv_data_length);
     evt->data_len = p_mesh_adv_data->adv_data_length - MESH_PACKET_ADV_OVERHEAD;
     memcpy(&evt->ble_adv_addr, p_addr, sizeof(p_mesh_adv_data));
     evt->rssi = -((int8_t) rssi);

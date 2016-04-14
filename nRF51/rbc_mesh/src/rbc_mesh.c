@@ -238,7 +238,7 @@ uint32_t rbc_mesh_value_get(rbc_mesh_value_handle_t handle, uint8_t* data, uint1
     {
         return NRF_ERROR_INVALID_ADDR;
     }
-    return vh_value_get(handle, &data, len);
+    return vh_value_get(handle, data, len);
 }
 
 uint32_t rbc_mesh_access_address_get(uint32_t* access_address)

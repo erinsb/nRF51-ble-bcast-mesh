@@ -215,8 +215,8 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
                 app_evt.event_type = RBC_MESH_EVENT_TYPE_UPDATE_VAL;
 
 								//memcpy(app_evt.data, serial_cmd->params.value_set.value, data_len);
-                uint8_t * data_ = (uint8_t) malloc(sizeof(uint8_t)*RBC_MESH_VALUE_MAX_LEN);
-                memcpy(data_,serial_cmd.value_set.value,RBC_MESH_VALUE_MAX_LEN);
+                uint8_t * data_ = (uint8_t*) malloc(sizeof(uint8_t)*RBC_MESH_VALUE_MAX_LEN);
+                memcpy(data_,serial_cmd->params.value_set.value,RBC_MESH_VALUE_MAX_LEN);
 								app_evt.data = data_;
 								printf("app_evt.data[0]: %u\n", app_evt.data[0]);
 								printf("app_evt.data[1]: %u\n", app_evt.data[1]);
@@ -590,9 +590,9 @@ void mesh_aci_command_check(void)
     serial_cmd_t serial_cmd;
 
     /* poll queue */
-    while (serial_handler_command_get(serial_cmd))
+    while (serial_handler_command_get(&serial_cmd))
     {
-        serial_command_handler(serial_cmd);
+        serial_command_handler(&serial_cmd);
     }
 }
 

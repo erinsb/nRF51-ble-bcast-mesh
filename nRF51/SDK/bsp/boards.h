@@ -53,6 +53,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #include "wt51822.h"
 #elif defined(BOARD_CUSTOM)
   #include "custom_board.h"
+#elif defined(BOARD_CUSTOM_SERIAL)
+  #include "custom_board_serial.h"
 #else
 #error "Board is not defined"
 #endif

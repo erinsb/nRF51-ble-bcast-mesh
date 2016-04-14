@@ -286,7 +286,11 @@ int main(void)
 						printf("rbc_mesh_event_get(1): evt popped from g_rbc_event_fifo \n");
             rbc_mesh_event_handler(&evt);
             rbc_mesh_packet_release(evt.data);
-            free(evt.data);
+						printf("after packet_release \n");
+						//#ifdef CUSTOM_BOARD_SERIAL
+							free(evt.data);
+							printf("freed evt.data \n");
+						//#endif
 						memset(&evt, 0, sizeof(evt));
 					//printf("rbc_mesh_event_get(1): evt popped from g_rbc_event_fifo \n");
         }
