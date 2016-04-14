@@ -55,7 +55,7 @@ void retarget_init(void)
     simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
 }
 
-int fputc(int ch, FILE * p_file) 
+int fputc(int ch, FILE * p_file)
 {
     simple_uart_put((uint8_t)ch);
     return 0;
@@ -93,7 +93,7 @@ static void error_loop(void)
 */
 void sd_assert_handler(uint32_t pc, uint16_t line_num, const uint8_t* p_file_name)
 {
-	
+
 	printf("sd_assert_handler");
 	printf("error_code: %u\n", pc);
 	printf("line_number: %u\n", line_num);
@@ -116,7 +116,7 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
 	//fprintf(fp, "error_code: %u\n", error_code);
 	//fprintf(fp, "line_number: %u\n", line_num);
 	//fprintf(fp, "file_name: %s\n", (char *)p_file_name);
-	
+
 	printf("app_error_handler");
 	printf("error_code: %u\n", error_code);
 	printf("line_number: %u\n", line_num);
@@ -150,12 +150,12 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 		evt->data -= 32;
 		printf("eve->data addr %p \n", &evt->data);
 	}*/
-	
+
 	printf("evt->event_type %x \n", evt->event_type);
 	printf("evt->value_handle %u \n", evt->value_handle);
 	printf("evt->data[0] %x \n", evt->data[0]);
 	printf("evt->data[1] %x \n", evt->data[1]);
-	printf("evt->data[2] %x \n", evt->data[2]);	
+	printf("evt->data[2] %x \n", evt->data[2]);
 	printf("evt->data[3] %x \n", evt->data[3]);
 	printf("evt->data[4] %x \n", evt->data[4]);
 	printf("evt->data[5] %x \n", evt->data[5]);
@@ -163,7 +163,7 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 	printf("eve->data addr %p \n", evt->data);
 	uint8_t* addr = (uint8_t*)0x20005178;
 	printf("addr: %d \n", *addr);
-	
+
     TICK_PIN(28);
     switch (evt->event_type)
     {
@@ -172,7 +172,7 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
         case RBC_MESH_EVENT_TYPE_UPDATE_VAL:
             if (evt->value_handle > 3)
                 break;
-						
+
 
             led_config(evt->value_handle, evt->data[0]);
             break;
@@ -230,7 +230,7 @@ int main(void)
 
     /* only want to enable serial interface, and let external host setup the framework */
     mesh_aci_init();
-	
+
 	  rbc_mesh_init_params_t init_params;
 
     init_params.access_addr = MESH_ACCESS_ADDR;
@@ -286,6 +286,7 @@ int main(void)
 						printf("rbc_mesh_event_get(1): evt popped from g_rbc_event_fifo \n");
             rbc_mesh_event_handler(&evt);
             rbc_mesh_packet_release(evt.data);
+            free(evt.data);
 						memset(&evt, 0, sizeof(evt));
 					//printf("rbc_mesh_event_get(1): evt popped from g_rbc_event_fifo \n");
         }
@@ -340,4 +341,3 @@ int main(void)
 #endif
 
 }
-

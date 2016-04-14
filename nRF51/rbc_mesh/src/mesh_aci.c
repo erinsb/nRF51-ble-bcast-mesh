@@ -107,7 +107,7 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
     case SERIAL_CMD_OPCODE_RADIO_RESET:
         /* Host gets out of sync if we cut off in the middle of a TX */
         serial_wait_for_completion();
-        
+
         /* kill ourself :) */
 #ifdef SOFTDEVICE_PRESENT
         sd_power_reset_reason_clr(0x0F000F);
@@ -117,7 +117,7 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
         NRF_POWER->RESETREAS = 0x0F000F; /* erase reset-reason to avoid wrongful state-readout on reboot */
         NRF_POWER->GPREGRET = RBC_MESH_GPREGRET_CODE_FORCED_REBOOT;
         NVIC_SystemReset();
-#endif    
+#endif
         break;
 #ifndef BOOTLOADER
     case SERIAL_CMD_OPCODE_INIT:
@@ -179,7 +179,7 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
 
     case SERIAL_CMD_OPCODE_VALUE_SET:
     {
-				
+
         serial_evt.opcode = SERIAL_EVT_OPCODE_CMD_RSP;
         serial_evt.params.cmd_rsp.command_opcode = serial_cmd->opcode;
         serial_evt.length = 3;
@@ -188,7 +188,7 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
         if (mesh_packet_acquire(&p_packet))
         {
             const uint8_t data_len = serial_cmd->length - 1 - sizeof(rbc_mesh_value_handle_t);
-            
+
             if (serial_cmd->length > sizeof(serial_cmd_params_value_set_t) + 1)
             {
                 serial_evt.params.cmd_rsp.status = ACI_STATUS_ERROR_INVALID_LENGTH;
@@ -211,11 +211,13 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
 								printf("Value copied into p_packet->payload: data_len =  %u\n", data_len);
                 memset(&app_evt, 0, sizeof(app_evt));
 								printf("Size of app_evt: %d \n", sizeof(app_evt));
-							  printf("Size of rbc_mesh_event_t, uint8_t*, ble_gap_addr_t: %d %d %d \n ", sizeof(rbc_mesh_event_type_t), sizeof(uint8_t*), sizeof(ble_gap_addr_t)); 
+							  printf("Size of rbc_mesh_event_t, uint8_t*, ble_gap_addr_t: %d %d %d \n ", sizeof(rbc_mesh_event_type_t), sizeof(uint8_t*), sizeof(ble_gap_addr_t));
                 app_evt.event_type = RBC_MESH_EVENT_TYPE_UPDATE_VAL;
-							
+
 								//memcpy(app_evt.data, serial_cmd->params.value_set.value, data_len);
-								app_evt.data = serial_cmd->params.value_set.value;
+                uint8_t * data_ = (uint8_t) malloc(sizeof(uint8_t)*RBC_MESH_VALUE_MAX_LEN);
+                memcpy(data_,serial_cmd.value_set.value,RBC_MESH_VALUE_MAX_LEN);
+								app_evt.data = data_;
 								printf("app_evt.data[0]: %u\n", app_evt.data[0]);
 								printf("app_evt.data[1]: %u\n", app_evt.data[1]);
 								printf("app_evt.data[2]: %u\n", app_evt.data[2]);
@@ -233,7 +235,7 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
 								printf("rbc_mesh_event_push (1): app_evt onto g_rbc_event_fifo %x\n", error_code);
                 serial_evt.params.cmd_rsp.status = error_code_translate(error_code);
 								//LEDS_ON(BSP_LED_1_MASK);
-							
+
             }
         }
         else
@@ -518,7 +520,7 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
                         }
                     }
                     break;
-                
+
             }
         }
         else
@@ -577,14 +579,16 @@ void mesh_aci_init(void)
 
 void mesh_aci_command_check(void)
 {
-		static serial_cmd_t* serial_cmd = NULL;
+		/*static serial_cmd_t* serial_cmd = NULL;
 		static bool cmd_init = 0;
 		if (!cmd_init) {
 				serial_cmd = realloc(serial_cmd, sizeof(serial_cmd_t));
 				if (serial_cmd) {
 					cmd_init = 1;
 				}
-		}
+		}*/
+    serial_cmd_t serial_cmd;
+
     /* poll queue */
     while (serial_handler_command_get(serial_cmd))
     {
@@ -627,4 +631,3 @@ void mesh_aci_rbc_event_handler(rbc_mesh_event_t* evt)
 
     serial_handler_event_send(&serial_evt);
 }
-
