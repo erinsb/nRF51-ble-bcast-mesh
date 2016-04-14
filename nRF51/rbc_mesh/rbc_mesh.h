@@ -306,13 +306,13 @@ uint32_t rbc_mesh_tx_event_set(rbc_mesh_value_handle_t handle, bool do_tx_event)
 * @return NRF_ERROR_INVALID_STATE the framework has not been initialized.
 * @return NRF_ERROR_INVALID_ADDR the handle is invalid.
 */
-//uint32_t rbc_mesh_value_get(rbc_mesh_value_handle_t handle,
-//    uint8_t* data,
-//    uint16_t* len);
-
 uint32_t rbc_mesh_value_get(rbc_mesh_value_handle_t handle,
-    uint8_t data,
+    uint8_t* data,
     uint16_t* len);
+
+//uint32_t rbc_mesh_value_get(rbc_mesh_value_handle_t handle,
+//    uint8_t  data,
+//    uint16_t* len);
 
 /**
 * @brief Get current mesh access address
@@ -454,4 +454,3 @@ uint32_t rbc_mesh_packet_release(uint8_t* p_data);
 //uint32_t rbc_mesh_packet_release(uint8_t p_data);
 
 #endif /* _RBC_MESH_H__ */
-
