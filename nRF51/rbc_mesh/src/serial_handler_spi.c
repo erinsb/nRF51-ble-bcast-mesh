@@ -227,8 +227,9 @@ void spi_event_handler(spi_slave_evt_t evt)
             {
                 if (fifo_push(&rx_fifo, &rx_buffer) == NRF_SUCCESS)
                 {
-									
+									#ifdef DEBUG
 									printf("spi_event_handler: rx_buffer pushed to rx_fifo\n");
+									#endif
 
                     /* notify ACI handler */
                     async_event_t async_evt;
@@ -363,9 +364,11 @@ bool serial_handler_event_send(serial_evt_t* evt)
     raw_data.status_byte = 0;
     memcpy(raw_data.buffer, evt, evt->length + 1);
 		//printf("raw_data.buffer %s %u\n", raw_data.buffer, evt->length);
+		#ifdef DEBUG
 		for (int i = 0; i < evt->length + 1; i++) {
 			printf("raw_data.buffer %x \n", raw_data.buffer[i]);
 		}
+		#endif
     fifo_push(&tx_fifo, &raw_data);
 
     if (fifo_is_full(&rx_fifo))
@@ -398,9 +401,11 @@ bool serial_handler_command_get(serial_cmd_t* cmd)
     if (temp.buffer[SERIAL_LENGTH_POS] > 0)
     {
         memcpy(cmd, temp.buffer, temp.buffer[SERIAL_LENGTH_POS] + 1);
+			#ifdef DEBUG
 			printf("serial_handler_cmd_get: rx_fifo popped into cmd\n");
+			#endif
 			for (int i = 0; i < temp.buffer[SERIAL_LENGTH_POS] + 1; i++) {
-			printf("temp.buffer %x \n", temp.buffer[i]);
+			//printf("temp.buffer %x \n", temp.buffer[i]);
 		}
     }
 

@@ -86,7 +86,7 @@ static aci_status_code_t error_code_translate(uint32_t nrf_error_code)
 */
 static void serial_command_handler(serial_cmd_t* serial_cmd)
 {
-	printf("Serial_cmd->opcode %x\n", serial_cmd->opcode);
+	//printf("Serial_cmd->opcode %x\n", serial_cmd->opcode);
 	serial_evt_t serial_evt;
     uint32_t error_code;
     rbc_mesh_event_t app_evt;
@@ -199,7 +199,7 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
                 error_code = rbc_mesh_value_set(serial_cmd->params.value_set.handle,
                                                 serial_cmd->params.value_set.value,
                                                 data_len);
-							printf("rbc_mesh_value_set %x\n", error_code);
+							//printf("rbc_mesh_value_set %x\n", error_code);
 
                 serial_evt.params.cmd_rsp.status = error_code_translate(error_code);
             }
@@ -208,16 +208,17 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
             if (error_code == NRF_SUCCESS)
             {
                 memcpy(p_packet->payload, serial_cmd->params.value_set.value, data_len);
-								printf("Value copied into p_packet->payload: data_len =  %u\n", data_len);
+								//printf("Value copied into p_packet->payload: data_len =  %u\n", data_len);
                 memset(&app_evt, 0, sizeof(app_evt));
-								printf("Size of app_evt: %d \n", sizeof(app_evt));
-							  printf("Size of rbc_mesh_event_t, uint8_t*, ble_gap_addr_t: %d %d %d \n ", sizeof(rbc_mesh_event_type_t), sizeof(uint8_t*), sizeof(ble_gap_addr_t));
+								//printf("Size of app_evt: %d \n", sizeof(app_evt));
+							  //printf("Size of rbc_mesh_event_t, uint8_t*, ble_gap_addr_t: %d %d %d \n ", sizeof(rbc_mesh_event_type_t), sizeof(uint8_t*), sizeof(ble_gap_addr_t));
                 app_evt.event_type = RBC_MESH_EVENT_TYPE_UPDATE_VAL;
 
 								//memcpy(app_evt.data, serial_cmd->params.value_set.value, data_len);
                 uint8_t * data_ = (uint8_t*) malloc(sizeof(uint8_t)*RBC_MESH_VALUE_MAX_LEN);
                 memcpy(data_,serial_cmd->params.value_set.value,RBC_MESH_VALUE_MAX_LEN);
 								app_evt.data = data_;
+								#ifdef DEBUG
 								printf("app_evt.data[0]: %u\n", app_evt.data[0]);
 								printf("app_evt.data[1]: %u\n", app_evt.data[1]);
 								printf("app_evt.data[2]: %u\n", app_evt.data[2]);
@@ -227,12 +228,13 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
 								uint8_t* addr = (uint8_t*)0x20005178;
 								printf("app_evt.data %d \n", *addr);
 								printf("app_evt.data length %d \n", data_len);
+								#endif
                 app_evt.data_len = data_len;
                 app_evt.value_handle = serial_cmd->params.value_set.handle;
 
                 error_code = rbc_mesh_event_push(&app_evt);
                 mesh_packet_ref_count_dec(p_packet);
-								printf("rbc_mesh_event_push (1): app_evt onto g_rbc_event_fifo %x\n", error_code);
+								//printf("rbc_mesh_event_push (1): app_evt onto g_rbc_event_fifo %x\n", error_code);
                 serial_evt.params.cmd_rsp.status = error_code_translate(error_code);
 								//LEDS_ON(BSP_LED_1_MASK);
 

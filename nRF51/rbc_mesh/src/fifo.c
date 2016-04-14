@@ -48,7 +48,7 @@ void fifo_init(fifo_t* p_fifo)
 	uint32_t i = 32;
 	while (!((p_fifo->array_len >> --i) & 0x01));
 	p_fifo->array_len = (1 << i);
-	printf("p_fifo->array_len %u \n", p_fifo->array_len);
+	//printf("p_fifo->array_len %u \n", p_fifo->array_len);
 
 	p_fifo->head = 0;
 	p_fifo->tail = 0;

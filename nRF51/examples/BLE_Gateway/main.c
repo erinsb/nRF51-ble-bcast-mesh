@@ -95,10 +95,12 @@ static void error_loop(void)
 void sd_assert_handler(uint32_t pc, uint16_t line_num, const uint8_t* p_file_name)
 {
 
+	#ifdef DEBUG
 	printf("sd_assert_handler");
 	printf("error_code: %u\n", pc);
 	printf("line_number: %u\n", line_num);
 	printf("file_name: %s\n", (char *)p_file_name);
+	#endif
     error_loop();
 }
 
@@ -118,16 +120,20 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
 	//fprintf(fp, "line_number: %u\n", line_num);
 	//fprintf(fp, "file_name: %s\n", (char *)p_file_name);
 
+	#ifdef DEBUG
 	printf("app_error_handler");
 	printf("error_code: %u\n", error_code);
 	printf("line_number: %u\n", line_num);
 	printf("file_name: %s\n", (char *)p_file_name);
+	#endif
     error_loop();
 }
 
 void HardFault_Handler(void)
 {
+		#ifdef DEBUG
 		printf("HardFault_Handler");
+	#endif
     error_loop();
 }
 
@@ -152,6 +158,7 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 		printf("eve->data addr %p \n", &evt->data);
 	}*/
 
+#ifdef DEBUG
 	printf("evt->event_type %x \n", evt->event_type);
 	printf("evt->value_handle %u \n", evt->value_handle);
 	printf("evt->data[0] %x \n", evt->data[0]);
@@ -164,6 +171,7 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 	printf("eve->data addr %p \n", evt->data);
 	uint8_t* addr = (uint8_t*)0x20005178;
 	printf("addr: %d \n", *addr);
+#endif
 
     TICK_PIN(28);
     switch (evt->event_type)
@@ -171,10 +179,12 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
         case RBC_MESH_EVENT_TYPE_CONFLICTING_VAL:
         case RBC_MESH_EVENT_TYPE_NEW_VAL:
         case RBC_MESH_EVENT_TYPE_UPDATE_VAL:
-            if (evt->value_handle > 3)
+            if (evt->value_handle > 32)
                 break;
 
-            gpio_config(evt->value_handle, evt->data[0]);
+            #ifndef RBC_MESH_SERIAL
+						gpio_config(evt->value_handle, evt->data[0]);
+						#endif
             break;
         case RBC_MESH_EVENT_TYPE_TX:
             break;
@@ -191,7 +201,7 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 */
 void gpio_init(void)
 {
-    nrf_gpio_range_cfg_output(LED_START, LED_STOP)
+    nrf_gpio_range_cfg_output(LED_START, LED_STOP);
 
     for (uint32_t i = 0; i < LEDS_NUMBER; ++i)
     {
@@ -216,8 +226,10 @@ void gpio_init(void)
 /** @brief main function */
 int main(void)
 {
-		retarget_init();
-		printf("Start...\r\n");
+		#ifdef DEBUG
+			retarget_init();
+			printf("Start...\r\n");
+		#endif
     /* init leds and pins */
     gpio_init();
     NRF_GPIO->OUTSET = (1 << 4);
@@ -283,10 +295,14 @@ int main(void)
     {
         if (rbc_mesh_event_get(&evt) == NRF_SUCCESS)
         {
+						#ifdef DEBUG
 						printf("rbc_mesh_event_get(1): evt popped from g_rbc_event_fifo \n");
+						#endif
             rbc_mesh_event_handler(&evt);
             rbc_mesh_packet_release(evt.data);
+						#ifdef DEBUG
 						printf("after packet_release \n");
+						#endif
 						//#ifdef CUSTOM_BOARD_SERIAL
 							free(evt.data);
 							printf("freed evt.data \n");
@@ -337,7 +353,9 @@ int main(void)
 
         if (rbc_mesh_event_get(&evt) == NRF_SUCCESS)
         {
+					#ifdef DEBUG
 					printf("rbc_mesh_event_get (2): evt popped from g_rbc_event_fifo \n");
+					#endif
             rbc_mesh_event_handler(&evt);
             rbc_mesh_packet_release(evt.data);
         }
