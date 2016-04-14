@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "nrf_adv_conn.h"
 #include "led_config.h"
+#include "gpio_config.h"
 #include "mesh_aci.h"
 
 #include "softdevice_handler.h"
@@ -173,8 +174,7 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
             if (evt->value_handle > 3)
                 break;
 
-
-            led_config(evt->value_handle, evt->data[0]);
+            gpio_config(evt->value_handle, evt->data[0]);
             break;
         case RBC_MESH_EVENT_TYPE_TX:
             break;
@@ -191,7 +191,7 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 */
 void gpio_init(void)
 {
-    nrf_gpio_range_cfg_output(LED_START, LED_STOP);
+    nrf_gpio_range_cfg_output(LED_START, LED_STOP)
 
     for (uint32_t i = 0; i < LEDS_NUMBER; ++i)
     {

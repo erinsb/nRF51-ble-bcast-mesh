@@ -28,32 +28,32 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ************************************************************************************/
 
-#include "led_config.h"
+#include "gpio_config.h"
 #include "nrf_soc.h"
 /**
 * @brief configure LEDs for easily visible status check
 */
-void led_config(uint8_t led, uint8_t conf)
+void gpio_config(uint8_t pin, uint8_t conf)
 {
 #if defined(BOARD_PCA10001)
   if (conf)
   {
-    NRF_GPIO->OUTSET = (1 << (led + LED_START));
+    NRF_GPIO->OUTSET = (1 << pin);
   }
   else
   {
-    NRF_GPIO->OUTCLR = (1 << (led + LED_START));
+    NRF_GPIO->OUTCLR = (1 << pin);
   }
 #else /* All other boards are the other way around */
   if (!conf)
   {
 		//LEDS_ON(BSP_LED_3_MASK);
-    NRF_GPIO->OUTSET = (1 << (led + LED_START));
+    NRF_GPIO->OUTSET = (1 << pin);
   }
   else
   {
 		//LEDS_ON(BSP_LED_3_MASK);
-    NRF_GPIO->OUTCLR = (1 << (led + LED_START));
+    NRF_GPIO->OUTCLR = (1 << pin);
   }
 #endif
 }
