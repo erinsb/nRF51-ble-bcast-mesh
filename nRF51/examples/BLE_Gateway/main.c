@@ -76,6 +76,7 @@ int fputc(int ch, FILE * p_file)
 */
 static void error_loop(void)
 {
+		printf("error");
     led_config(2, 1);
     led_config(3, 0);
     while (true)
@@ -92,6 +93,11 @@ static void error_loop(void)
 */
 void sd_assert_handler(uint32_t pc, uint16_t line_num, const uint8_t* p_file_name)
 {
+	
+	printf("sd_assert_handler");
+	printf("error_code: %u\n", pc);
+	printf("line_number: %u\n", line_num);
+	printf("file_name: %s\n", (char *)p_file_name);
     error_loop();
 }
 
@@ -111,6 +117,7 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
 	//fprintf(fp, "line_number: %u\n", line_num);
 	//fprintf(fp, "file_name: %s\n", (char *)p_file_name);
 	
+	printf("app_error_handler");
 	printf("error_code: %u\n", error_code);
 	printf("line_number: %u\n", line_num);
 	printf("file_name: %s\n", (char *)p_file_name);
@@ -119,6 +126,7 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
 
 void HardFault_Handler(void)
 {
+		printf("HardFault_Handler");
     error_loop();
 }
 
@@ -138,6 +146,15 @@ void sd_ble_evt_handler(ble_evt_t* p_ble_evt)
 */
 static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 {
+	
+	printf("evt->event_type %x \n", evt->event_type);
+	printf("evt->value_handle %u \n", evt->value_handle);
+	printf("evt->data[0] %x \n", evt->data[0]);
+	printf("evt->data[1] %x \n", evt->data[1]);
+	printf("evt->data[2] %x \n", evt->data[2]);	
+	printf("evt->data[3] %x \n", evt->data[3]);
+	printf("evt->data[4] %x \n", evt->data[4]);
+	
     TICK_PIN(28);
     switch (evt->event_type)
     {
@@ -146,9 +163,6 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
         case RBC_MESH_EVENT_TYPE_UPDATE_VAL:
             if (evt->value_handle > 3)
                 break;
-						if (evt->data[0] == 1) {
-							LEDS_ON(BSP_LED_3_MASK);
-						}
 						
 
             led_config(evt->value_handle, evt->data[0]);
@@ -194,6 +208,7 @@ void gpio_init(void)
 int main(void)
 {
 		retarget_init();
+		printf("Start...\r\n");
     /* init leds and pins */
     gpio_init();
     NRF_GPIO->OUTSET = (1 << 4);

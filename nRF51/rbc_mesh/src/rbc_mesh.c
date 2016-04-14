@@ -27,6 +27,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ************************************************************************************/
+#include <stdio.h>
 
 #include "rbc_mesh.h"
 #include "rbc_mesh_common.h"
@@ -321,8 +322,9 @@ uint32_t rbc_mesh_event_push(rbc_mesh_event_t* p_event)
 
     if (error_code == NRF_SUCCESS && p_event->data != NULL)
     {
-				//LEDS_ON(BSP_LED_3_MASK);
+				//printf("rbc_mesh: p_event->data BEFORE %u \n", p_event->data[0]);
         mesh_packet_ref_count_inc((mesh_packet_t*) p_event->data); /* will be aligned by packet manager */
+				//printf("rbc_mesh: p_event->data AFTER %u \n", p_event->data[0]);
     }
     return error_code;
 }

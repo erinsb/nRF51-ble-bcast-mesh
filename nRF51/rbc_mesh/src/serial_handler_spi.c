@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "app_error.h"
 #include "app_util_platform.h"
 #include <string.h>
+#include <stdio.h>
 /** @brief Pin configuration for the application */
 #define PIN_MISO                (28)
 #define PIN_MOSI                (25)
@@ -226,6 +227,8 @@ void spi_event_handler(spi_slave_evt_t evt)
             {
                 if (fifo_push(&rx_fifo, &rx_buffer) == NRF_SUCCESS)
                 {
+									
+									printf("spi_event_handler: rx_buffer pushed to rx_fifo\n");
 
                     /* notify ACI handler */
                     async_event_t async_evt;
@@ -359,6 +362,10 @@ bool serial_handler_event_send(serial_evt_t* evt)
     serial_data_t raw_data;
     raw_data.status_byte = 0;
     memcpy(raw_data.buffer, evt, evt->length + 1);
+		//printf("raw_data.buffer %s %u\n", raw_data.buffer, evt->length);
+		for (int i = 0; i < evt->length + 1; i++) {
+			printf("raw_data.buffer %x \n", raw_data.buffer[i]);
+		}
     fifo_push(&tx_fifo, &raw_data);
 
     if (fifo_is_full(&rx_fifo))
@@ -391,6 +398,10 @@ bool serial_handler_command_get(serial_cmd_t* cmd)
     if (temp.buffer[SERIAL_LENGTH_POS] > 0)
     {
         memcpy(cmd, temp.buffer, temp.buffer[SERIAL_LENGTH_POS] + 1);
+			printf("serial_handler_cmd_get: rx_fifo popped into cmd\n");
+			for (int i = 0; i < temp.buffer[SERIAL_LENGTH_POS] + 1; i++) {
+			printf("temp.buffer %x \n", temp.buffer[i]);
+		}
     }
 
 
