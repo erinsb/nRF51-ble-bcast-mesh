@@ -197,6 +197,27 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
     }
 }
 
+/**
+* @brief Wrapper for rbc_mesh_value_set, if there's any new value in the data array
+*
+* @param[in] handle Handle of the value to update (the GPIO pin number)
+* @param[in] data Pointer to the array of data to take in
+* @param[in] len Length of data array
+*/
+static void mesh_update(rbc_mesh_value_handle_t handle, uint8_t * data, int len){
+  uint8_t new_data[23]; //TODO: insert max data length, 23 taken from usage.adoc
+  int new_len;
+  if(rbc_mesh_value_get(handle,new_data,&new_len)) return; //return if failed
+  if(len != new_len){
+    printf("Handle data length changed\n");
+    return;
+  }
+  for(int i = 0; i < len; i++){
+    if(data[i] != new_data[i]){
+      rbc_mesh_value_set(handle,data,len);
+    }
+  }
+}
 
 /**
 * @brief Initialize GPIO pins, for LEDs and debugging
@@ -313,6 +334,13 @@ int main(void)
 						memset(&evt, 0, sizeof(evt));
 					//printf("rbc_mesh_event_get(1): evt popped from g_rbc_event_fifo \n");
         }
+        //TODO: optional - wrap in ifdef for HVAC board
+        //update analog values
+        uint8_t data = 0;
+        //TODO: get GPIO value on pin 5
+        mesh_update(5,&data,1);
+        //TODO: get GPIO value on pin 6
+        mesh_update(6,&data,1);
 
         sd_app_evt_wait();
     }
