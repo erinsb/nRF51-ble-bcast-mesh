@@ -277,7 +277,7 @@ int main(void)
     APP_ERROR_CHECK(error_code);
 
     /* request values for both LEDs on the mesh */
-    for (uint32_t i = 0; i < 2; ++i)
+    for (uint32_t i = 0; i < 32; ++i)
     {
         error_code = rbc_mesh_value_enable(i);
         APP_ERROR_CHECK(error_code);
@@ -299,7 +299,7 @@ int main(void)
     APP_ERROR_CHECK(error_code);
 
     /* request values for both LEDs on the mesh */
-    for (uint32_t i = 0; i < 2; ++i)
+    for (uint32_t i = 0; i < 32; ++i)
     {
         error_code = rbc_mesh_value_enable(i);
         APP_ERROR_CHECK(error_code);
@@ -336,8 +336,10 @@ int main(void)
         }
         //TODO: optional - wrap in ifdef for HVAC board
         //update analog values
-        uint8_t data = 0;
-        //TODO: get GPIO value on pin 5
+        int analog_val = 0;
+        //TODO: get GPIO value on pin 5 to analog_val
+        //TODO: convert data value to data
+        uint8_t data;
         mesh_update(5,&data,1);
         //TODO: get GPIO value on pin 6
         mesh_update(6,&data,1);
