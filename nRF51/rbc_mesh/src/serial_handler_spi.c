@@ -403,10 +403,10 @@ bool serial_handler_command_get(serial_cmd_t* cmd)
         memcpy(cmd, temp.buffer, temp.buffer[SERIAL_LENGTH_POS] + 1);
 			#ifdef DEBUG
 			printf("serial_handler_cmd_get: rx_fifo popped into cmd\n");
-			#endif
 			for (int i = 0; i < temp.buffer[SERIAL_LENGTH_POS] + 1; i++) {
 			//printf("temp.buffer %x \n", temp.buffer[i]);
 		}
+			#endif
     }
 
 

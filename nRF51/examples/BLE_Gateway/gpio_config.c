@@ -45,7 +45,7 @@ void gpio_config(uint8_t pin, uint8_t conf)
     NRF_GPIO->OUTCLR = (1 << pin);
   }
 #else /* All other boards are the other way around */
-  if (!conf)
+  if (conf)
   {
 		//LEDS_ON(BSP_LED_3_MASK);
     NRF_GPIO->OUTSET = (1 << pin);

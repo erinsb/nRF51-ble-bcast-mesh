@@ -77,7 +77,9 @@ int fputc(int ch, FILE * p_file)
 */
 static void error_loop(void)
 {
-		printf("error");
+		#ifdef DEBUG
+			printf("error");
+		#endif
     led_config(2, 1);
     led_config(3, 0);
     while (true)
@@ -305,8 +307,9 @@ int main(void)
 						#endif
 						//#ifdef CUSTOM_BOARD_SERIAL
 							free(evt.data);
+						#ifdef DEBUG
 							printf("freed evt.data \n");
-						//#endif
+						#endif
 						memset(&evt, 0, sizeof(evt));
 					//printf("rbc_mesh_event_get(1): evt popped from g_rbc_event_fifo \n");
         }
