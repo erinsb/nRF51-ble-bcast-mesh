@@ -204,9 +204,9 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 * @param[in] data Pointer to the array of data to take in
 * @param[in] len Length of data array
 */
-static void mesh_update(rbc_mesh_value_handle_t handle, uint8_t * data, int len){
+static void mesh_update(rbc_mesh_value_handle_t handle, uint8_t * data, uint16_t len){
   uint8_t new_data[23]; //TODO: insert max data length, 23 taken from usage.adoc
-  int new_len;
+  uint16_t new_len;
   if(rbc_mesh_value_get(handle,new_data,&new_len)) return; //return if failed
   if(len != new_len){
     printf("Handle data length changed\n");
@@ -244,6 +244,61 @@ void gpio_init(void)
     #endif
 #endif
 
+}
+
+int analog_read(int pin_num)
+
+{
+                uint16_t adc_result;   
+
+NRF_ADC->INTENSET = (ADC_INTENSET_END_Disabled << ADC_INTENSET_END_Pos);     /*!< Interrupt enabled. */
+
+// config ADC
+//*** pin_num= ADC_CONFIG_PSEL_AnalogInputX-1
+NRF_ADC->CONFIG = (ADC_CONFIG_EXTREFSEL_None << ADC_CONFIG_EXTREFSEL_Pos) /*!< Analog external reference inputs disabled. */
+                | (pin_num << ADC_CONFIG_PSEL_Pos)                 
+                | (ADC_CONFIG_REFSEL_VBG << ADC_CONFIG_REFSEL_Pos)   /*!< Use internal 1.2V bandgap voltage as reference for conversion. */
+                | (ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling << ADC_CONFIG_INPSEL_Pos) /*!< Analog input specified by PSEL with 1/3 prescaling used as input for the conversion. */
+                | (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos);  /*!< 10bit ADC resolution. */
+nrf_gpio_cfg_input(NRF_GPIO_PORT_SELECT_PORT0, GPIO_PIN_CNF_PULL_Disabled);
+// enable ADC       
+NRF_ADC->ENABLE = ADC_ENABLE_ENABLE_Enabled; /* Bit 0 : ADC enable. */     
+
+// start ADC conversion
+NRF_ADC->TASKS_START = 1;
+
+// wait for conversion to end
+while (!NRF_ADC->EVENTS_END)
+{}
+NRF_ADC->EVENTS_END = 0;
+
+//Save your ADC result
+adc_result = NRF_ADC->RESULT;   
+
+//Use the STOP task to save current. Workaround for PAN_028 rev1.1 anomaly 1.
+NRF_ADC->TASKS_STOP = 1;
+
+    return adc_result;
+}
+uint8_t int2byte( int input)
+{
+     uint8_t output;
+
+    if (input>=850)
+{
+    //printf("WARNING: INPUT VALUE ACCEED 1 BYTE\n");
+    output=255;
+}   
+else if (input<0){
+    //printf("WARNING: INPUT VALUE LESS THAN ZERO\n");
+    output=0;   
+}
+else
+{
+output=(input*255/870);
+}
+
+return output;
 }
 
 /** @brief main function */
@@ -337,12 +392,33 @@ int main(void)
         //TODO: optional - wrap in ifdef for HVAC board
         //update analog values
         int analog_val = 0;
+				//Digital Variable Define
+            bool flag=0;
+            //int Dig_in_pin= Dig_PIN_1;
+            //int Dig_val_saver;
+            int Dig_out_1;
+            int Dig_out_2;
+
+        //Variable Define
+
+        //int Ana_output;
+        uint8_t C_ana_output_1;
+        uint8_t C_ana_output_2;
         //TODO: get GPIO value on pin 5 to analog_val
+				/*******************Analog Read**********************/           
+        C_ana_output_1=int2byte(analog_read(5));
+        C_ana_output_2=int2byte(analog_read(6));
+				
         //TODO: convert data value to data
-        uint8_t data;
-        mesh_update(5,&data,1);
-        //TODO: get GPIO value on pin 6
-        mesh_update(6,&data,1);
+        //uint8_t data1;
+				
+				// Pins 3 & 4 are digital read
+				//mesh_update(3, &data, 1);
+				//mesh_update(4, &data, 1);
+				
+				// Pins 5 & 6 are analog read
+        //mesh_update(5, &C_ana_output_1, 1);
+        //mesh_update(6, &C_ana_output_2, 1);
 
         sd_app_evt_wait();
     }
