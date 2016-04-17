@@ -364,10 +364,10 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
 
           memset(&app_evt, 0, sizeof(app_evt));
           app_evt.event_type = RBC_MESH_EVENT_TYPE_REFRESH_VAL;
-          app_evt.value_handle = serial_cmd->params.value_set.handle;
+          app_evt.value_handle = serial_cmd->params.value_refresh.handle;
           error_code = rbc_mesh_event_push(&app_evt);
 					#ifdef DEBUG
-					printf("error code is: %u \n", error_code);
+					printf("refresh error code is: %u \n", error_code);
 					#endif
           mesh_packet_ref_count_dec(p_packet);
           serial_evt.params.cmd_rsp.status = error_code_translate(error_code);

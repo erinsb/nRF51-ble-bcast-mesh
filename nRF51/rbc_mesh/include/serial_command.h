@@ -113,6 +113,11 @@ typedef __packed_armcc struct
     dfu_packet_t packet;
 } __packed_gcc serial_cmd_params_dfu_t;
 
+typedef __packed_armcc struct
+{
+	uint16_t handle;
+} __packed_gcc serial_cmd_params_value_refresh_t;
+
 
 
 
@@ -131,6 +136,7 @@ typedef __packed_armcc struct
         serial_cmd_params_value_disable_t   value_disable;
         serial_cmd_params_value_get_t       value_get;
         serial_cmd_params_dfu_t             dfu;
+				serial_cmd_params_value_refresh_t		value_refresh;
     } __packed_gcc params;
 } __packed_gcc  serial_cmd_t;
 
