@@ -186,6 +186,9 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 
             #ifndef RBC_MESH_SERIAL
 						gpio_config(evt->value_handle, evt->data[0]);
+						#ifdef DEBUG
+							printf("gpio_config");
+						#endif
 						#endif
             break;
         case RBC_MESH_EVENT_TYPE_TX:
@@ -208,10 +211,10 @@ static void mesh_update(rbc_mesh_value_handle_t handle, uint8_t * data, uint16_t
   uint8_t new_data[23]; //TODO: insert max data length, 23 taken from usage.adoc
   uint16_t new_len;
   if(rbc_mesh_value_get(handle,new_data,&new_len)) return; //return if failed
-  if(len != new_len){
+  /*if(len != new_len){
     printf("Handle data length changed\n");
     return;
-  }
+  }*/
   for(int i = 0; i < len; i++){
     if(data[i] != new_data[i]){
       rbc_mesh_value_set(handle,data,len);
@@ -232,7 +235,8 @@ void gpio_init(void)
     }
 
 #if defined(BOARD_PCA10001) || defined(BOARD_PCA10028)
-    nrf_gpio_range_cfg_output(0, 32);
+    //nrf_gpio_range_cfg_output(0, 32);
+		nrf_gpio_range_cfg_input(5, 6, 	NRF_GPIO_PIN_NOPULL);
 #endif
 
 #ifdef BOARD_PCA10028
@@ -256,11 +260,11 @@ NRF_ADC->INTENSET = (ADC_INTENSET_END_Disabled << ADC_INTENSET_END_Pos);     /*!
 // config ADC
 //*** pin_num= ADC_CONFIG_PSEL_AnalogInputX-1
 NRF_ADC->CONFIG = (ADC_CONFIG_EXTREFSEL_None << ADC_CONFIG_EXTREFSEL_Pos) /*!< Analog external reference inputs disabled. */
-                | (pin_num << ADC_CONFIG_PSEL_Pos)                 
+                | ((pin_num) << ADC_CONFIG_PSEL_Pos)                 
                 | (ADC_CONFIG_REFSEL_VBG << ADC_CONFIG_REFSEL_Pos)   /*!< Use internal 1.2V bandgap voltage as reference for conversion. */
                 | (ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling << ADC_CONFIG_INPSEL_Pos) /*!< Analog input specified by PSEL with 1/3 prescaling used as input for the conversion. */
-                | (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos);  /*!< 10bit ADC resolution. */
-nrf_gpio_cfg_input(NRF_GPIO_PORT_SELECT_PORT0, GPIO_PIN_CNF_PULL_Disabled);
+                | (ADC_CONFIG_RES_8bit << ADC_CONFIG_RES_Pos);  /*!< 10bit ADC resolution. */
+//nrf_gpio_cfg_input(NRF_GPIO_PORT_SELECT_PORT0, GPIO_PIN_CNF_PULL_Disabled);
 // enable ADC       
 NRF_ADC->ENABLE = ADC_ENABLE_ENABLE_Enabled; /* Bit 0 : ADC enable. */     
 
@@ -402,12 +406,18 @@ int main(void)
         //Variable Define
 
         //int Ana_output;
-        uint8_t C_ana_output_1;
-        uint8_t C_ana_output_2;
+        static uint8_t gas_read;
+        static uint8_t temp_read;
         //TODO: get GPIO value on pin 5 to analog_val
 				/*******************Analog Read**********************/           
-        C_ana_output_1=int2byte(analog_read(5));
-        C_ana_output_2=int2byte(analog_read(6));
+        //C_ana_output_1=int2byte(analog_read(5));
+        //C_ana_output_2=int2byte(analog_read(6));
+				gas_read=(uint8_t)analog_read(ADC_CONFIG_PSEL_AnalogInput6);
+				temp_read = (uint8_t)analog_read(ADC_CONFIG_PSEL_AnalogInput7);
+				#ifdef DEBUG
+					//printf("analog read is: %d \n", gas_read);
+					//printf("temperature is: %d \n", temp_read);
+				#endif
 				
         //TODO: convert data value to data
         //uint8_t data1;
@@ -417,8 +427,11 @@ int main(void)
 				//mesh_update(4, &data, 1);
 				
 				// Pins 5 & 6 are analog read
-        //mesh_update(5, &C_ana_output_1, 1);
-        //mesh_update(6, &C_ana_output_2, 1);
+				for (int i = 0; i < 20000; i++) {
+					i ++;
+				}
+				//mesh_update(5, &gas_read, 1);
+        //mesh_update(6, &temp_read, 1);
 
         sd_app_evt_wait();
     }
