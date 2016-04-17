@@ -62,6 +62,8 @@ int fputc(int ch, FILE * p_file)
     return 0;
 }
 
+int analog_read(int pin_num);
+
 /* Debug macros for debugging with logic analyzer */
 #define SET_PIN(x) NRF_GPIO->OUTSET = (1 << (x))
 #define CLEAR_PIN(x) NRF_GPIO->OUTCLR = (1 << (x))
@@ -202,8 +204,11 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
             break;
         #ifdef HVAC
         if(evt->value_handle == 5 || evt->value_handle == 6){
-            uint8_t val = analog_read(handle); //get analog value on pin
-            rbc_mesh_value_set(handle,data,len);
+            uint8_t val = analog_read(evt->value_handle); //get analog value on pin
+					#ifdef DEBUG
+					printf("value returned is: %u \n", val);
+					#endif
+            rbc_mesh_value_set(evt->value_handle,&val,1);
         }
         #endif
     }
@@ -379,8 +384,8 @@ int main(void)
 				/*******************Analog Read**********************/
         //C_ana_output_1=int2byte(analog_read(5));
         //C_ana_output_2=int2byte(analog_read(6));
-				gas_read=(uint8_t)analog_read(ADC_CONFIG_PSEL_AnalogInput6);
-				temp_read = (uint8_t)analog_read(ADC_CONFIG_PSEL_AnalogInput7);
+				//gas_read=(uint8_t)analog_read(ADC_CONFIG_PSEL_AnalogInput6);
+				//temp_read = (uint8_t)analog_read(ADC_CONFIG_PSEL_AnalogInput7);
 				#ifdef DEBUG
 					//printf("analog read is: %d \n", gas_read);
 					//printf("temperature is: %d \n", temp_read);

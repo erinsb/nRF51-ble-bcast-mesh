@@ -352,7 +352,7 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
             serial_evt.params.cmd_rsp.status = error_code_translate(error_code);
         }
         break;
-    case SERIAL_CMD_VALUE_REFRESH:
+    case SERIAL_CMD_OPCODE_VALUE_REFRESH:
       serial_evt.opcode = SERIAL_EVT_OPCODE_CMD_RSP;
       serial_evt.params.cmd_rsp.command_opcode = serial_cmd->opcode;
       serial_evt.length = 3;
@@ -366,6 +366,9 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
           app_evt.event_type = RBC_MESH_EVENT_TYPE_REFRESH_VAL;
           app_evt.value_handle = serial_cmd->params.value_set.handle;
           error_code = rbc_mesh_event_push(&app_evt);
+					#ifdef DEBUG
+					printf("error code is: %u \n", error_code);
+					#endif
           mesh_packet_ref_count_dec(p_packet);
           serial_evt.params.cmd_rsp.status = error_code_translate(error_code);
       }
