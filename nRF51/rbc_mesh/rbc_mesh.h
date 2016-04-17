@@ -108,6 +108,7 @@ typedef enum
     RBC_MESH_EVENT_TYPE_NEW_VAL,         /** A previously unallocated value has been received and allocated */
     RBC_MESH_EVENT_TYPE_INITIALIZED,     /** The framework has been initialized internally (most likely via serial interface) */
     RBC_MESH_EVENT_TYPE_TX,              /** The indicated handle was transmitted */
+    RBC_MESH_EVENT_TYPE_REFRESH_VAL,         /** Another node is requesting value to be updated **/
 } rbc_mesh_event_type_t;
 
 /** @brief Rebroadcast framework generated event. */

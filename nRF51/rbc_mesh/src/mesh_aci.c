@@ -352,7 +352,30 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
             serial_evt.params.cmd_rsp.status = error_code_translate(error_code);
         }
         break;
+    case SERIAL_CMD_VALUE_REFRESH:
+      serial_evt.opcode = SERIAL_EVT_OPCODE_CMD_RSP;
+      serial_evt.params.cmd_rsp.command_opcode = serial_cmd->opcode;
+      serial_evt.length = 3;
 
+      mesh_packet_t* p_packet;
+      if (mesh_packet_acquire(&p_packet))
+      {
+          const uint8_t data_len = serial_cmd->length - 1 - sizeof(rbc_mesh_value_handle_t);
+
+          memset(&app_evt, 0, sizeof(app_evt));
+          app_evt.event_type = RBC_MESH_EVENT_TYPE_REFRESH_VAL;
+          app_evt.value_handle = serial_cmd->params.value_set.handle;
+          error_code = rbc_mesh_event_push(&app_evt);
+          mesh_packet_ref_count_dec(p_packet);
+          serial_evt.params.cmd_rsp.status = error_code_translate(error_code);
+      }
+      else
+      {
+          serial_evt.params.cmd_rsp.status = error_code_translate(NRF_ERROR_BUSY);
+      }
+
+      serial_handler_event_send(&serial_evt);
+      break;
     case SERIAL_CMD_OPCODE_VALUE_GET:
         serial_evt.opcode = SERIAL_EVT_OPCODE_CMD_RSP;
         serial_evt.params.cmd_rsp.command_opcode = serial_cmd->opcode;

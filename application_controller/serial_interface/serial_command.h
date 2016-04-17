@@ -29,7 +29,7 @@ typedef enum
 {
     SERIAL_CMD_OPCODE_ECHO                  = 0x02,
     SERIAL_CMD_OPCODE_RADIO_RESET           = 0x0E,
-    
+
     SERIAL_CMD_OPCODE_INIT                  = 0x70,
     SERIAL_CMD_OPCODE_VALUE_SET             = 0x71,
     SERIAL_CMD_OPCODE_VALUE_ENABLE          = 0x72,
@@ -44,62 +44,68 @@ typedef enum
     SERIAL_CMD_OPCODE_ACCESS_ADDR_GET       = 0x7C,
     SERIAL_CMD_OPCODE_CHANNEL_GET           = 0x7D,
     SERIAL_CMD_OPCODE_INTERVAL_GET          = 0x7F,
+
+    SERIAL_CMD_OPCODE_VALUE_REFRESH         = 0x6F,
 } __packed serial_cmd_opcode_t;
 
 
 /****** CMD PARAMS ******/
-typedef struct 
+typedef struct
 {
 	uint8_t data[29];
 } __packed serial_cmd_params_echo_t;
 
-typedef struct 
+typedef struct
 {
     uint32_t access_addr;
     uint32_t int_min;
     uint8_t channel;
 } __packed serial_cmd_params_init_t;
 
-typedef struct 
+typedef struct
 {
     uint16_t handle;
-    uint8_t flag; 
+    uint8_t flag;
     uint8_t value;
 } __packed serial_cmd_params_flag_set_t;
 
-typedef struct 
+typedef struct
 {
     uint16_t handle;
-    uint8_t flag; 
+    uint8_t flag;
 } __packed serial_cmd_params_flag_get_t;
 
-typedef struct 
+typedef struct
 {
     uint16_t handle;
     uint8_t value[RBC_MESH_VALUE_MAX_LEN];
 } __packed serial_cmd_params_value_set_t;
 
-typedef struct 
+typedef struct
 {
     uint16_t handle;
 } __packed serial_cmd_params_value_enable_t;
 
-typedef struct 
+typedef struct
 {
     uint16_t handle;
 } __packed serial_cmd_params_value_disable_t;
 
-typedef struct 
+typedef struct
 {
     uint16_t handle;
 } __packed serial_cmd_params_value_get_t;
 
+typedef struct
+{
+  uint16_t handle;
+} __packed serial_cmd_params_value_refresh_t
 
-typedef struct 
+typedef struct
 {
     uint8_t length;
     serial_cmd_opcode_t opcode;
-    union 
+    union
     {
         serial_cmd_params_echo_t            echo;
         serial_cmd_params_init_t            init;
@@ -109,6 +115,7 @@ typedef struct
         serial_cmd_params_value_enable_t    value_enable;
         serial_cmd_params_value_disable_t   value_disable;
         serial_cmd_params_value_get_t       value_get;
+        serial_cmd_params_value_refresh_t   value_refresh;
     } __packed params;
 } __packed  serial_cmd_t;
 
