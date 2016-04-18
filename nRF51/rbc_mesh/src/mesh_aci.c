@@ -361,10 +361,13 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
       if (mesh_packet_acquire(&p_packet))
       {
           const uint8_t data_len = serial_cmd->length - 1 - sizeof(rbc_mesh_value_handle_t);
+				
+					p_packet->payload[0] = 0;
 
           memset(&app_evt, 0, sizeof(app_evt));
           app_evt.event_type = RBC_MESH_EVENT_TYPE_REFRESH_VAL;
           app_evt.value_handle = serial_cmd->params.value_refresh.handle;
+					app_evt.data = NULL;
           error_code = rbc_mesh_event_push(&app_evt);
 					#ifdef DEBUG
 					printf("refresh error code is: %u \n", error_code);

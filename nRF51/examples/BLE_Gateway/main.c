@@ -399,9 +399,6 @@ int main(void)
 				//mesh_update(4, &data, 1);
 
 				// Pins 5 & 6 are analog read
-				for (int i = 0; i < 20000; i++) {
-					i ++;
-				}
 				//mesh_update(5, &gas_read, 1);
         //mesh_update(6, &temp_read, 1);
 

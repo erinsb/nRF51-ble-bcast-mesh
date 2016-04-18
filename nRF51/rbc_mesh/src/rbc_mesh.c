@@ -319,12 +319,17 @@ uint32_t rbc_mesh_event_push(rbc_mesh_event_t* p_event)
         return NRF_ERROR_INVALID_STATE;
     }
     uint32_t error_code = fifo_push(&g_rbc_event_fifo, p_event);
+		#ifdef DEBUG
+		printf("event_push error code is: %u \n", error_code);
+		#endif
 		//printf("p_event pushed onto g_rbc_event_fifo\n");
 
 
     if (error_code == NRF_SUCCESS && p_event->data != NULL)
     {
-				//printf("rbc_mesh: p_event->data BEFORE %u \n", p_event->data[0]);
+				#ifdef DEBUG
+				printf("p_event->data != NULL");
+				#endif
         mesh_packet_ref_count_inc((mesh_packet_t*) p_event->data); /* will be aligned by packet manager */
 				//printf("rbc_mesh: p_event->data AFTER %u \n", p_event->data[0]);
     }
@@ -335,10 +340,16 @@ uint32_t rbc_mesh_event_get(rbc_mesh_event_t* p_evt)
 {
     if (g_mesh_state == MESH_STATE_UNINITIALIZED)
     {
+				/*#ifdef DEBUG
+				printf("MESH_STATE_UNINITIALIZED \n");
+				#endif*/
         return NRF_ERROR_INVALID_STATE;
     }
     if (fifo_pop(&g_rbc_event_fifo, p_evt) != NRF_SUCCESS)
     {
+				/*#ifdef DEBUG
+				printf("NRF_ERROR_NOT_FOUND \n");
+				#endif*/
         return NRF_ERROR_NOT_FOUND;
     }
 		//printf("fifo_pop p_evt from g_rbc_event_fifo \n");
