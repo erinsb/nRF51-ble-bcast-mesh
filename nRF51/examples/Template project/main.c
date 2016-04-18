@@ -51,6 +51,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MESH_CHANNEL            (38)
 #define MESH_CLOCK_SRC          (NRF_CLOCK_LFCLKSRC_XTAL_75_PPM)
 
+//Available pin configurations
+typedef enum{
+  PIN_UNSET, //pin is not connected to device
+  PIN_OUPUT, //pin is set to output
+  PIN_DINPUT, //pin is set to digital input
+  PIN_AINPUT, //pin is set to analog input
+} pin_config;
+//array of pin configurations
+pin_config pin_configs[32];
+
 /**
 * @brief General error handler.
 */
@@ -61,35 +71,50 @@ static void error_loop(void)
     {
         __WFE();
     }
-}    
+}
 
 /**
 * @brief Softdevice crash handler, never returns
-* 
+*
 * @param[in] pc Program counter at which the assert failed
-* @param[in] line_num Line where the error check failed 
+* @param[in] line_num Line where the error check failed
 * @param[in] p_file_name File where the error check failed
 */
 void sd_assert_handler(uint32_t pc, uint16_t line_num, const uint8_t* p_file_name)
 {
+    #ifdef DEBUG
+    printf("sd_assert_handler");
+    printf("error_code: %u\n", pc);
+    printf("line_number: %u\n", line_num);
+    printf("file_name: %s\n", (char *)p_file_name);
+    #endif
     error_loop();
 }
 
 /**
 * @brief App error handle callback. Called whenever an APP_ERROR_CHECK() fails.
 *   Never returns.
-* 
+*
 * @param[in] error_code The error code sent to APP_ERROR_CHECK()
-* @param[in] line_num Line where the error check failed 
+* @param[in] line_num Line where the error check failed
 * @param[in] p_file_name File where the error check failed
 */
 void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name)
 {
+    #ifdef DEBUG
+  	printf("app_error_handler");
+  	printf("error_code: %u\n", error_code);
+  	printf("line_number: %u\n", line_num);
+  	printf("file_name: %s\n", (char *)p_file_name);
+  	#endif
     error_loop();
 }
 
 void HardFault_Handler(void)
 {
+    #ifdef DEBUG
+    printf("HardFault_Handler");
+    #endif
     error_loop();
 }
 
@@ -103,29 +128,122 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 {
     switch (evt->event_type)
     {
-        case RBC_MESH_EVENT_TYPE_CONFLICTING_VAL:   
+        case RBC_MESH_EVENT_TYPE_CONFLICTING_VAL:
         case RBC_MESH_EVENT_TYPE_NEW_VAL:
         case RBC_MESH_EVENT_TYPE_UPDATE_VAL:
+          if (evt->value_handle >= 32){
+            if(evt->value_handle < 64) //else do nothing
+              ping_handle(evt->value_handle);
+          } else{
+            if(pin_configs[evt->value_handle] == PIN_OUTPUT)
+              set_pin(evt->value_handle, evt->data[0]);
+          }
+          break;
         case RBC_MESH_EVENT_TYPE_TX:
         case RBC_MESH_EVENT_TYPE_INITIALIZED:
-            break;  
+            break;
     }
 }
 
+static void ping_handle(uint16_t handle){
+  uint16_t pin = handle - 32;
+  uint8_t val;
+  if(pin <= 6){
+    val = analog_read(pin);
+  } else{
+    val = 0; //TODO: perform a digital read
+  }
+  #ifdef DEBUG
+    printf("Ping received: Updated handle %d with value = %d",handle,val);
+  #endif
+
+  rbc_mesh_value_set(pin,&val, 1);
+}
+
+int analog_read(int pin_num)
+
+{
+    uint16_t adc_result;
+    NRF_ADC->INTENSET = (ADC_INTENSET_END_Disabled << ADC_INTENSET_END_Pos);     /*!< Interrupt enabled. */
+    // config ADC
+    //*** pin_num= ADC_CONFIG_PSEL_AnalogInputX-1
+    NRF_ADC->CONFIG = (ADC_CONFIG_EXTREFSEL_None << ADC_CONFIG_EXTREFSEL_Pos) /*!< Analog external reference inputs disabled. */
+                    | (1 << pin_num) << ADC_CONFIG_PSEL_Pos)
+                    | (ADC_CONFIG_REFSEL_VBG << ADC_CONFIG_REFSEL_Pos)   /*!< Use internal 1.2V bandgap voltage as reference for conversion. */
+                    | (ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling << ADC_CONFIG_INPSEL_Pos) /*!< Analog input specified by PSEL with 1/3 prescaling used as input for the conversion. */
+                    | (ADC_CONFIG_RES_8bit << ADC_CONFIG_RES_Pos);  /*!< 10bit ADC resolution. */
+    //nrf_gpio_cfg_input(NRF_GPIO_PORT_SELECT_PORT0, GPIO_PIN_CNF_PULL_Disabled);
+    // enable ADC
+    NRF_ADC->ENABLE = ADC_ENABLE_ENABLE_Enabled; /* Bit 0 : ADC enable. */
+    // start ADC conversion
+    NRF_ADC->TASKS_START = 1;
+    // wait for conversion to end
+    while (!NRF_ADC->EVENTS_END)
+    {}
+    NRF_ADC->EVENTS_END = 0;
+    //Save your ADC result
+    adc_result = NRF_ADC->RESULT;
+    //Use the STOP task to save current. Workaround for PAN_028 rev1.1 anomaly 1.
+    NRF_ADC->TASKS_STOP = 1;
+    return adc_result;
+}
+
+static void pin_init(int pin, pin_config cfg){
+  pin_configs[pin] = cfg;
+  switch (cfg){
+    case PIN_UNSET:
+      break;
+    case PIN_OUTPUT:
+      pin_gpio_cfg_output(pin);
+      break;
+    case PIN_AINPUT:
+    case PIN_DINPUT:
+      pin_gpio_cfg_input(pin, NRF_GPIO_PIN_NOPULL);
+      break;
+  }
+}
+
+static void set_pin(int pin, int set){
+  if(set) SET_PIN(pin);
+  else CLEAR_PIN(pin);
+  #ifdef DEBUG
+  printf("Pin %d set to %d", pin, set);
+  #endif
+}
 
 /** @brief main function */
 int main(void)
 {
+    #ifdef DEBUG
+      retarget_init();
+      printf("Start...\r\n");
+    #endif
+    int i;
+    for(i = 0; i < 32; i++) pin_configs[i] = PIN_UNSET;
+
+    /* init each device */
+    #ifdef RBC_MESH_SERIAL
+    mesh_aci_init();
+    serial_dev_init();
+    #endif
+    #ifdef SMART_HVAC
+      pin_init(5,PIN_AINPUT);
+      pin_init(6,PIN_AINPUT);
+    #endif
+    #ifdef SMART_SWITCH
+
+    #endif
+    #ifdef SMART_VALVE
+
+    #endif
+
+
     /* Enable Softdevice (including sd_ble before framework */
     SOFTDEVICE_HANDLER_INIT(MESH_CLOCK_SRC, NULL);
     softdevice_ble_evt_handler_set(rbc_mesh_ble_evt_handler);
-    
-#ifdef RBC_MESH_SERIAL
-    
-    /* only want to enable serial interface, and let external host setup the framework */
-    mesh_aci_init();
+    softdevice_sys_evt_handler_set(rbc_mesh_sd_evt_handler);
 
-#else    
+
     rbc_mesh_init_params_t init_params;
 
     init_params.access_addr = MESH_ACCESS_ADDR;
@@ -136,13 +254,18 @@ int main(void)
     uint32_t error_code;
     error_code = rbc_mesh_init(init_params);
     APP_ERROR_CHECK(error_code);
-    
+
     error_code = rbc_mesh_value_enable(1);
     APP_ERROR_CHECK(error_code);
     error_code = rbc_mesh_value_enable(2);
     APP_ERROR_CHECK(error_code);
-#endif
-    
+
+    for (uint32_t i = 0; i < 64; ++i)
+    {
+        error_code = rbc_mesh_value_enable(i);
+        APP_ERROR_CHECK(error_code);
+    }
+
     rbc_mesh_event_t evt;
     while (true)
     {
@@ -150,9 +273,10 @@ int main(void)
         {
             rbc_mesh_event_handler(&evt);
             rbc_mesh_packet_release(evt.data);
+            free(evt.data);
+            memset(&evt,0,sizeof(evt));
         }
-        
+
         sd_app_evt_wait();
     }
 }
-
