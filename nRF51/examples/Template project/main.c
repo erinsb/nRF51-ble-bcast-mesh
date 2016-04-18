@@ -229,12 +229,20 @@ int main(void)
     #ifdef SMART_HVAC
       pin_init(5,PIN_AINPUT);
       pin_init(6,PIN_AINPUT);
+      pin_init(17,PIN_OUTPUT);
+      pin_init(18,PIN_OUTPUT);
+      pin_init(19,PIN_OUTPUT);
+      pin_init(20,PIN_OUTPUT);
     #endif
     #ifdef SMART_SWITCH
-
+      pin_init(21,PIN_OUTPUT);
+      pin_init(22,PIN_OUTPUT);
+      pin_init(23,PIN_OUTPUT);
+      pin_init(24,PIN_OUTPUT);
     #endif
     #ifdef SMART_VALVE
-
+      pin_init(30,PIN_OUTPUT);
+      pin_init(3, PIN_AINPUT);
     #endif
 
 
