@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "app_error.h"
 #include "nrf_gpio.h"
 #include "boards.h"
+#include "simple_uart.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -54,12 +55,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //Available pin configurations
 typedef enum{
   PIN_UNSET, //pin is not connected to device
-  PIN_OUPUT, //pin is set to output
+  PIN_OUTPUT, //pin is set to output
   PIN_DINPUT, //pin is set to digital input
   PIN_AINPUT, //pin is set to analog input
 } pin_config;
 //array of pin configurations
 pin_config pin_configs[32];
+
+
+void retarget_init(void)
+{
+    simple_uart_config(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, HWFC);
+}
+
+void sd_ble_evt_handler(ble_evt_t* p_ble_evt) {
+	rbc_mesh_ble_evt_handler(p_ble_evt);
+	nrf_adv_conn_evt_handler(p_ble_evt);
+}
 
 /**
 * @brief General error handler.
@@ -170,7 +182,7 @@ int analog_read(int pin_num)
     // config ADC
     //*** pin_num= ADC_CONFIG_PSEL_AnalogInputX-1
     NRF_ADC->CONFIG = (ADC_CONFIG_EXTREFSEL_None << ADC_CONFIG_EXTREFSEL_Pos) /*!< Analog external reference inputs disabled. */
-                    | (1 << pin_num) << ADC_CONFIG_PSEL_Pos)
+                    | ((1 << pin_num) << ADC_CONFIG_PSEL_Pos)
                     | (ADC_CONFIG_REFSEL_VBG << ADC_CONFIG_REFSEL_Pos)   /*!< Use internal 1.2V bandgap voltage as reference for conversion. */
                     | (ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling << ADC_CONFIG_INPSEL_Pos) /*!< Analog input specified by PSEL with 1/3 prescaling used as input for the conversion. */
                     | (ADC_CONFIG_RES_8bit << ADC_CONFIG_RES_Pos);  /*!< 10bit ADC resolution. */
@@ -250,7 +262,7 @@ int main(void)
 
     /* Enable Softdevice (including sd_ble before framework */
     SOFTDEVICE_HANDLER_INIT(MESH_CLOCK_SRC, NULL);
-    softdevice_ble_evt_handler_set(rbc_mesh_ble_evt_handler);
+    softdevice_ble_evt_handler_set(sd_ble_evt_handler);
     softdevice_sys_evt_handler_set(rbc_mesh_sd_evt_handler);
 
 

@@ -89,6 +89,8 @@ static void error_loop(void)
     }
 }
 
+
+
 /**
 * @brief Softdevice crash handler, never returns
 *
