@@ -158,6 +158,8 @@ static void ping_handle(uint16_t handle){
   #endif
 
   rbc_mesh_value_set(pin,&val, 1);
+  uint8_t tmp = 0;
+  rbc_mesh_value_set(pin+32,&tmp,1);
 }
 
 int analog_read(int pin_num)
