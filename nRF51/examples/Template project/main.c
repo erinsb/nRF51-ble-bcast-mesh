@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ************************************************************************************/
 
 #include "rbc_mesh.h"
+#include "bootloader_app.h"
+#include "nrf_adv_conn.h"
 #include "timeslot_handler.h"
 #include "mesh_aci.h"
 
@@ -237,8 +239,7 @@ int main(void)
 
     /* init each device */
     #ifdef RBC_MESH_SERIAL
-    mesh_aci_init();
-    serial_dev_init();
+      mesh_aci_init();
     #endif
     #ifdef SMART_HVAC
       pin_init(5,PIN_AINPUT);
