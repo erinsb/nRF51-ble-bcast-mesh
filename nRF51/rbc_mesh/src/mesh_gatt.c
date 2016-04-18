@@ -42,6 +42,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ble_err.h"
 #include <string.h>
 
+#include <stdio.h>
+
 extern uint32_t rbc_mesh_event_push(rbc_mesh_event_t* p_event);
 
 typedef struct
@@ -432,6 +434,9 @@ void mesh_gatt_sd_ble_event_handle(ble_evt_t* p_ble_evt)
                                 break;
                             case VH_DATA_STATUS_UPDATED:
                                 mesh_evt.event_type = RBC_MESH_EVENT_TYPE_UPDATE_VAL;
+																#ifdef DEBUG
+																printf("STATUS SET AS RBC_MESH_EVENT_TYPE_UPDATE_VAL \n");
+																#endif
                                 break;
                             default:
                                 mesh_gatt_cmd_rsp_push((mesh_gatt_evt_opcode_t) p_gatt_evt->opcode, MESH_GATT_RESULT_ERROR_BUSY);

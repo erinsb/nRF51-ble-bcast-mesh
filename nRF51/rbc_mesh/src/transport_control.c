@@ -47,6 +47,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bootloader_app.h"
 
 #include <string.h>
+#include <stdio.h>
 
 /* event push isn't present in the API header file. */
 extern uint32_t rbc_mesh_event_push(rbc_mesh_event_t* p_evt);
@@ -224,6 +225,10 @@ static void mesh_app_packet_handle(mesh_adv_data_t* p_mesh_adv_data,
             break;
 
         case VH_DATA_STATUS_UPDATED:
+					
+						#ifdef DEBUG
+						printf("STATUS SET AS RBC_MESH_EVENT_TYPE_UPDATE_VAL \n");
+						#endif
 
             /* notify application */
             prepare_event(&evt, p_mesh_adv_data, rssi, p_addr);

@@ -165,16 +165,6 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 #ifdef DEBUG
 	printf("evt->event_type %x \n", evt->event_type);
 	printf("evt->value_handle %u \n", evt->value_handle);
-	printf("evt->data[0] %x \n", evt->data[0]);
-	printf("evt->data[1] %x \n", evt->data[1]);
-	printf("evt->data[2] %x \n", evt->data[2]);
-	printf("evt->data[3] %x \n", evt->data[3]);
-	printf("evt->data[4] %x \n", evt->data[4]);
-	printf("evt->data[5] %x \n", evt->data[5]);
-	printf("evt->data[6] %x \n", evt->data[6]);
-	printf("eve->data addr %p \n", evt->data);
-	uint8_t* addr = (uint8_t*)0x20005178;
-	printf("addr: %d \n", *addr);
 #endif
 
     TICK_PIN(28);

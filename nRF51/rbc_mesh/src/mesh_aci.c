@@ -199,7 +199,6 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
                 error_code = rbc_mesh_value_set(serial_cmd->params.value_set.handle,
                                                 serial_cmd->params.value_set.value,
                                                 data_len);
-							//printf("rbc_mesh_value_set %x\n", error_code);
 
                 serial_evt.params.cmd_rsp.status = error_code_translate(error_code);
             }
@@ -353,6 +352,9 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
         }
         break;
     case SERIAL_CMD_OPCODE_VALUE_REFRESH:
+			#ifdef DEBUG
+			printf("SERIAL_CMD_OPCODE_VALUE_REFRESH \n");
+			#endif
       serial_evt.opcode = SERIAL_EVT_OPCODE_CMD_RSP;
       serial_evt.params.cmd_rsp.command_opcode = serial_cmd->opcode;
       serial_evt.length = 3;
@@ -360,20 +362,39 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
       mesh_packet_t* p_packet;
       if (mesh_packet_acquire(&p_packet))
       {
+					uint8_t* data_ = malloc(1);
           const uint8_t data_len = serial_cmd->length - 1 - sizeof(rbc_mesh_value_handle_t);
-				
-					p_packet->payload[0] = 0;
+
+            if (serial_cmd->length > sizeof(serial_cmd_params_value_set_t) + 1)
+            {
+                serial_evt.params.cmd_rsp.status = ACI_STATUS_ERROR_INVALID_LENGTH;
+                error_code = NRF_ERROR_INVALID_LENGTH;
+            }
+            else
+            {
+                error_code = rbc_mesh_value_set(serial_cmd->params.value_set.handle,
+                                                serial_cmd->params.value_set.value,
+                                                data_len);
+
+                serial_evt.params.cmd_rsp.status = error_code_translate(error_code);
+            }
+						
+						if (error_code == NRF_SUCCESS) {
+					//p_packet->payload[0] = &data_;
+					memcpy(p_packet->payload, data_, 1);
 
           memset(&app_evt, 0, sizeof(app_evt));
           app_evt.event_type = RBC_MESH_EVENT_TYPE_REFRESH_VAL;
           app_evt.value_handle = serial_cmd->params.value_refresh.handle;
-					app_evt.data = NULL;
+					app_evt.data = data_;
+					app_evt.data_len = data_len;
           error_code = rbc_mesh_event_push(&app_evt);
 					#ifdef DEBUG
 					printf("refresh error code is: %u \n", error_code);
 					#endif
           mesh_packet_ref_count_dec(p_packet);
           serial_evt.params.cmd_rsp.status = error_code_translate(error_code);
+						}
       }
       else
       {

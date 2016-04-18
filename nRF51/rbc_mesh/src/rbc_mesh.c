@@ -328,7 +328,7 @@ uint32_t rbc_mesh_event_push(rbc_mesh_event_t* p_event)
     if (error_code == NRF_SUCCESS && p_event->data != NULL)
     {
 				#ifdef DEBUG
-				printf("p_event->data != NULL");
+				printf("p_event->data != NULL\n");
 				#endif
         mesh_packet_ref_count_inc((mesh_packet_t*) p_event->data); /* will be aligned by packet manager */
 				//printf("rbc_mesh: p_event->data AFTER %u \n", p_event->data[0]);

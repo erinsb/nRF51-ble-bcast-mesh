@@ -31,6 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mesh_packet.h"
 #include "app_error.h"
 #include <string.h>
+#include <stdio.h>
 
 #define PACKET_INDEX(p_packet) ((((uint32_t) p_packet) - ((uint32_t) &g_packet_pool[0])) / sizeof(mesh_packet_t))
 /******************************************************************************
@@ -226,13 +227,15 @@ mesh_adv_data_t* mesh_packet_adv_data_get(mesh_packet_t* p_packet)
 {
     if (p_packet == NULL)
     {
+			#ifdef DEBUG
+			printf("p_packet == NULL \n");
+			#endif
         return NULL;
     }
 
     mesh_adv_data_t* p_mesh_adv_data = (mesh_adv_data_t*) &p_packet->payload[0];
     if (p_packet->header.length <= MESH_PACKET_BLE_OVERHEAD ||
-        p_packet->header.length > MESH_PACKET_BLE_OVERHEAD + BLE_ADV_PACKET_PAYLOAD_MAX_LENGTH)
-    {
+        p_packet->header.length > MESH_PACKET_BLE_OVERHEAD + BLE_ADV_PACKET_PAYLOAD_MAX_LENGTH) {
         return NULL;
     }
 
@@ -244,10 +247,16 @@ mesh_adv_data_t* mesh_packet_adv_data_get(mesh_packet_t* p_packet)
                > p_packet->header.length - MESH_PACKET_BLE_OVERHEAD)
         {
             /* invalid ad length */
+						#ifdef DEBUG
+						//printf("invalid adv length \n");
+						#endif
             return NULL;
         }
         p_mesh_adv_data += p_mesh_adv_data->adv_data_length + 1; /* length field in ad data is not considered */
     }
+		#ifdef DEBUG
+		//printf("SUCCESS mesh_packet_adv_data_get \n");
+		#endif
 
     /* The network packet overlaps with AD-data */
     return (mesh_adv_data_t*) p_mesh_adv_data;
