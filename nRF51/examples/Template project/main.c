@@ -180,13 +180,40 @@ int analog_read(int pin_num)
     return adc_result;
 }
 
+int Pulsemeasure(int Pin_Num)
+{
+
+    int count=0;
+    int output=0;
+    bool flag;
+    int pin_val= nrf_gpio_pin_read(Pin_Num);
+
+    if(pin_val==1)
+    {
+        flag=1;
+    }
+    while(flag)
+    {
+        pin_val= nrf_gpio_pin_read(Pin_Num);
+        count++;
+        if(pin_val!=1)
+        {
+          flag=0;
+          output=count;
+          count=0;
+        }
+    }
+
+        return output;
+}
+
 static void ping_handle(uint16_t handle){
   uint16_t pin = handle - 32;
   uint8_t val;
   if(pin <= 6){
     val = analog_read(pin);
   } else{
-    val = 0; //TODO: perform a digital read
+    val = Pulsemeasure(pin);
   }
   #ifdef DEBUG
     printf("Ping received: Updated pin %d with value = %d \n",pin,val);
@@ -246,7 +273,7 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
           if (evt->value_handle >= 32){
             if(evt->value_handle < 64 && evt->data[0] == 1) { //else do nothing
 							#ifndef RBC_MESH_SERIAL
-              if(pin_configs[evt->value_handle - 32] == PIN_AINPUT) //TODO: Also PIN_DINPUT
+              if(pin_configs[evt->value_handle - 32] == PIN_AINPUT || pin_configs[evt->value_handle - 32] == PIN_DINPUT)
                 ping_handle(evt->value_handle);
 							#endif
 						}
@@ -271,9 +298,10 @@ static void pin_init(int pin, pin_config cfg){
       nrf_gpio_cfg_output(pin);
       break;
     case PIN_AINPUT:
-    case PIN_DINPUT:
       nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_NOPULL);
       break;
+    case PIN_DINPUT:
+      nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_PULLDOWN);
   }
 }
 
@@ -308,7 +336,7 @@ int main(void)
     #endif
     #ifdef SMART_VALVE
       pin_init(30,PIN_OUTPUT);
-      pin_init(3, PIN_AINPUT);
+      pin_init(3, PIN_DINPUT);
     #endif
 
 
