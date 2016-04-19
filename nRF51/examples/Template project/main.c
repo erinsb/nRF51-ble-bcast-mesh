@@ -258,9 +258,9 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
     printf("Handle: %d; ",evt->value_handle);
     printf("Data Len: %d\n",evt->data_len);
     int i;
-    printf("Data (hex): ")
-    for(i = 0; i < data_len; i++){
-      printf("%x, ",data[i]);
+    printf("Data (hex): ");
+    for(i = 0; i < evt->data_len; i++){
+      printf("%x, ",evt->data[i]);
     }
     printf("\n\n");
     #endif
