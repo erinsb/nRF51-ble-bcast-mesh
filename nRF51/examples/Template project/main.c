@@ -206,8 +206,38 @@ static void ping_handle(uint16_t handle){
 static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
 {
 		#ifdef DEBUG
-		printf("handler happened \n");
+		printf("rbc_mesh_event_handler\n");
 		#endif
+
+    #ifdef RECEIVER
+    printf("Event type: ");
+    switch (evt->event_type) {
+      case RBC_MESH_EVENT_TYPE_CONFLICTING_VAL:
+        printf("CONFLICTING_VAL\n");
+        break;
+      case RBC_MESH_EVENT_TYPE_NEW_VAL:
+        printf("NEW_VAL\n");
+        break;
+      case RBC_MESH_EVENT_TYPE_UPDATE_VAL:
+        printf("UPDATE_VAL\n");
+        break;
+      case RBC_MESH_EVENT_TYPE_TX:
+        printf("TX\n");
+        break;
+      case RBC_MESH_EVENT_TYPE_INITIALIZED:
+        printf("INITIALIZED\n");
+        break;
+    }
+    printf("Handle: %d; ",evt->value_handle);
+    printf("Data Len: %d\n",evt->data_len);
+    int i;
+    printf("Data (hex): ")
+    for(i = 0; i < data_len; i++){
+      printf("%x, ",data[i]);
+    }
+    printf("\n\n");
+    #endif
+
     switch (evt->event_type)
     {
         case RBC_MESH_EVENT_TYPE_CONFLICTING_VAL:
