@@ -64,6 +64,15 @@ typedef enum{
 //array of pin configurations
 pin_config pin_configs[32];
 
+struct __FILE { int handle; /* Add whatever you need here */ };
+FILE __stdout;
+FILE __stdin;
+
+int fputc(int ch, FILE * p_file)
+{
+    simple_uart_put((uint8_t)ch);
+    return 0;
+}
 
 void retarget_init(void)
 {
@@ -80,6 +89,9 @@ void sd_ble_evt_handler(ble_evt_t* p_ble_evt) {
 */
 static void error_loop(void)
 {
+	#ifdef DEBUG
+	printf("error \n");
+	#endif
     SET_PIN(7);
     while (true)
     {
@@ -132,48 +144,12 @@ void HardFault_Handler(void)
     error_loop();
 }
 
-/**
-* @brief RBC_MESH framework event handler. Defined in rbc_mesh.h. Handles
-*   events coming from the mesh.
-*
-* @param[in] evt RBC event propagated from framework
-*/
-static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
-{
-    switch (evt->event_type)
-    {
-        case RBC_MESH_EVENT_TYPE_CONFLICTING_VAL:
-        case RBC_MESH_EVENT_TYPE_NEW_VAL:
-        case RBC_MESH_EVENT_TYPE_UPDATE_VAL:
-          if (evt->value_handle >= 32){
-            if(evt->value_handle < 64) //else do nothing
-              ping_handle(evt->value_handle);
-          } else{
-            if(pin_configs[evt->value_handle] == PIN_OUTPUT)
-              set_pin(evt->value_handle, evt->data[0]);
-          }
-          break;
-        case RBC_MESH_EVENT_TYPE_TX:
-        case RBC_MESH_EVENT_TYPE_INITIALIZED:
-            break;
-    }
-}
-
-static void ping_handle(uint16_t handle){
-  uint16_t pin = handle - 32;
-  uint8_t val;
-  if(pin <= 6){
-    val = analog_read(pin);
-  } else{
-    val = 0; //TODO: perform a digital read
-  }
+static void set_pin(int pin, int set){
+  if(set) SET_PIN(pin);
+  else CLEAR_PIN(pin);
   #ifdef DEBUG
-    printf("Ping received: Updated handle %d with value = %d",handle,val);
+  printf("Pin %d set to %d", pin, set);
   #endif
-
-  rbc_mesh_value_set(pin,&val, 1);
-  uint8_t tmp = 0;
-  rbc_mesh_value_set(pin+32,&tmp,1);
 }
 
 int analog_read(int pin_num)
@@ -204,28 +180,72 @@ int analog_read(int pin_num)
     return adc_result;
 }
 
+static void ping_handle(uint16_t handle){
+  uint16_t pin = handle - 32;
+  uint8_t val;
+  if(pin <= 6){
+    val = analog_read(pin);
+  } else{
+    val = 0; //TODO: perform a digital read
+  }
+  #ifdef DEBUG
+    printf("Ping received: Updated pin %d with value = %d \n",pin,val);
+  #endif
+
+  rbc_mesh_value_set(pin,&val, 1);
+  uint8_t tmp = 0;
+  rbc_mesh_value_set(pin+32,&tmp,1);
+}
+
+/**
+* @brief RBC_MESH framework event handler. Defined in rbc_mesh.h. Handles
+*   events coming from the mesh.
+*
+* @param[in] evt RBC event propagated from framework
+*/
+static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
+{
+		#ifdef DEBUG
+		printf("handler happened \n");
+		#endif
+    switch (evt->event_type)
+    {
+        case RBC_MESH_EVENT_TYPE_CONFLICTING_VAL:
+        case RBC_MESH_EVENT_TYPE_NEW_VAL:
+        case RBC_MESH_EVENT_TYPE_UPDATE_VAL:
+          if (evt->value_handle >= 32){
+            if(evt->value_handle < 64 && evt->data[0] == 1) { //else do nothing
+							#ifndef RBC_MESH_SERIAL
+              ping_handle(evt->value_handle);
+							#endif
+						}
+          } else{
+            if(pin_configs[evt->value_handle] == PIN_OUTPUT)
+              set_pin(evt->value_handle, evt->data[0]);
+          }
+          break;
+        case RBC_MESH_EVENT_TYPE_TX:
+        case RBC_MESH_EVENT_TYPE_INITIALIZED:
+            break;
+    }
+}
+
+
 static void pin_init(int pin, pin_config cfg){
   pin_configs[pin] = cfg;
   switch (cfg){
     case PIN_UNSET:
       break;
     case PIN_OUTPUT:
-      pin_gpio_cfg_output(pin);
+      nrf_gpio_cfg_output(pin);
       break;
     case PIN_AINPUT:
     case PIN_DINPUT:
-      pin_gpio_cfg_input(pin, NRF_GPIO_PIN_NOPULL);
+      nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_NOPULL);
       break;
   }
 }
 
-static void set_pin(int pin, int set){
-  if(set) SET_PIN(pin);
-  else CLEAR_PIN(pin);
-  #ifdef DEBUG
-  printf("Pin %d set to %d", pin, set);
-  #endif
-}
 
 /** @brief main function */
 int main(void)

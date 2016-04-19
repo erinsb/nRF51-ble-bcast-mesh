@@ -417,6 +417,9 @@ static void serial_command_handler(serial_cmd_t* serial_cmd)
             uint32_t error_code = rbc_mesh_value_get(serial_cmd->params.value_get.handle,
                                                         serial_evt.params.cmd_rsp.response.val_get.data,
                                                         (uint16_t*) &serial_evt.length);
+					#ifdef DEBUG
+					printf("val_get.data = %u \n",serial_evt.params.cmd_rsp.response.val_get.data[0]); 
+					#endif
 
             serial_evt.params.cmd_rsp.status = error_code_translate(error_code);
 
@@ -680,6 +683,11 @@ void mesh_aci_rbc_event_handler(rbc_mesh_event_t* evt)
     /* all event parameter types are the same, just use event_update for all */
     serial_evt.params.event_update.handle = evt->value_handle;
     memcpy(serial_evt.params.event_update.data, evt->data, evt->data_len);
+		
+		#ifdef DEBUG
+		printf("serial_evt.length: %u \n", serial_evt.length);
+		printf("serial_evt.opcode: %u \n", serial_evt.opcode);
+		#endif
 
     serial_handler_event_send(&serial_evt);
 }

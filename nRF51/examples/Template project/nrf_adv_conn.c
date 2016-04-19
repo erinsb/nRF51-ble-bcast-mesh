@@ -29,7 +29,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ************************************************************************************/
 
 #include "nrf_adv_conn.h"
-#include "led_config.h"
 
 #include "rbc_mesh.h"
 
