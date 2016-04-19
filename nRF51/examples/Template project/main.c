@@ -216,7 +216,7 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* evt)
           if (evt->value_handle >= 32){
             if(evt->value_handle < 64 && evt->data[0] == 1) { //else do nothing
 							#ifndef RBC_MESH_SERIAL
-              if(pin_configs[evt->value_handle] == AINPUT) //TODO: Also DINPUT
+              if(pin_configs[evt->value_handle - 32] == PIN_AINPUT) //TODO: Also PIN_DINPUT
                 ping_handle(evt->value_handle);
 							#endif
 						}
