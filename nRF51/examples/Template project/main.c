@@ -54,6 +54,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MESH_CHANNEL            (38)
 #define MESH_CLOCK_SRC          (NRF_CLOCK_LFCLKSRC_XTAL_75_PPM)
 
+int pulse_val;
+
 //Available pin configurations
 typedef enum{
   PIN_UNSET, //pin is not connected to device
@@ -210,10 +212,16 @@ int Pulsemeasure(int Pin_Num)
 static void ping_handle(uint16_t handle){
   uint16_t pin = handle - 32;
   uint8_t val;
-  if(pin <= 6){
+  if(pin == 6 || pin == 5){
     val = analog_read(pin);
-  } else{
+		#ifdef DEBUG
+		printf("analog value is: %u\n", val);
+		#endif
+  } else if (pin ==3){
+		#ifdef DEBUG
+		printf("pulse value \n");
     val = Pulsemeasure(pin);
+		#endif
   }
   #ifdef DEBUG
     printf("Ping received: Updated pin %d with value = %d \n",pin,val);
@@ -371,6 +379,14 @@ int main(void)
     rbc_mesh_event_t evt;
     while (true)
     {
+			#ifdef SMART_VALVE
+			pulse_val = Pulsemeasure(3);
+			#endif
+			
+			#ifdef DEBUG
+			printf("pulse_val: %d\n", pulse_val);
+			#endif
+			
         if (rbc_mesh_event_get(&evt) == NRF_SUCCESS)
         {
             rbc_mesh_event_handler(&evt);
